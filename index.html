@@ -1,977 +1,1356 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Documentation Index Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        :root {
-            --primary: #667eea;
-            --primary-dark: #5568d3;
-            --secondary: #764ba2;
-            --success: #48bb78;
-            --danger: #dc3545;
-            --warning: #ffa500;
-            --bg-light: #f7fafc;
-            --bg-lighter: #edf2f7;
-            --border: #e2e8f0;
-            --text-dark: #2d3748;
-            --text-light: #718096;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
+      :root {
+        --primary: #667eea;
+        --primary-dark: #5568d3;
+        --secondary: #764ba2;
+        --success: #48bb78;
+        --danger: #dc3545;
+        --warning: #ffa500;
+        --bg-light: #f7fafc;
+        --bg-lighter: #edf2f7;
+        --border: #e2e8f0;
+        --text-dark: #2d3748;
+        --text-light: #718096;
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--text-dark);
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: var(--text-dark);
+      }
 
+      .app-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 420px 1fr;
+        gap: 20px;
+        min-height: calc(100vh - 40px);
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 24px;
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: var(--shadow-lg);
+      }
+
+      .header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header p {
+        font-size: 13px;
+        color: var(--text-light);
+      }
+
+      .form-group {
+        margin-bottom: 18px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      textarea {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.2s;
+        font-family: inherit;
+        background: var(--bg-light);
+        color: var(--text-dark);
+      }
+
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .button-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      button {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.secondary {
+        background: var(--bg-lighter);
+        color: var(--text-dark);
+        border: 2px solid var(--border);
+      }
+
+      button.secondary:hover {
+        background: var(--border);
+        border-color: var(--text-light);
+      }
+
+      button.danger {
+        background: var(--danger);
+      }
+
+      button.danger:hover {
+        background: #c82333;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .stat-box {
+        background: linear-gradient(135deg, var(--bg-light), var(--bg-lighter));
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--text-light);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .entries-section {
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .entries-section h3 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .entry-wrapper {
+        margin-bottom: 10px;
+      }
+
+      .insert-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 6px;
+        gap: 8px;
+        opacity: 0;
+        transition: all 0.2s;
+        height: 24px;
+      }
+
+      .entry-wrapper:hover .insert-divider {
+        opacity: 1;
+      }
+
+      .insert-divider button {
+        font-size: 12px;
+        padding: 4px 8px;
+        width: auto;
+        height: 24px;
+        background: var(--success);
+        color: white;
+      }
+
+      .insert-divider button:hover {
+        background: #3fa36e;
+        transform: scale(1.1);
+      }
+
+      .insert-divider span {
+        font-size: 12px;
+        color: var(--text-light);
+        opacity: 0.6;
+      }
+
+      .entry-item {
+        background: var(--bg-light);
+        border: 2px solid var(--border);
+        padding: 12px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.2s;
+        cursor: grab;
+      }
+
+      .entry-item:hover {
+        background: var(--bg-lighter);
+        border-color: var(--primary);
+      }
+
+      .entry-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .entry-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 14px;
+        word-break: break-word;
+      }
+
+      .entry-page {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+        cursor: pointer;
+        min-width: 50px;
+        text-align: center;
+      }
+
+      .entry-page:hover {
+        transform: scale(1.1);
+      }
+
+      .entry-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .delete-btn {
+        background: var(--danger);
+        padding: 6px 10px;
+        font-size: 12px;
+        width: auto;
+        border-radius: 6px;
+        margin: 0;
+      }
+
+      .delete-btn:hover {
+        background: #c82333;
+      }
+
+      .main-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .toolbar {
+        background: white;
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .toolbar button {
+        width: auto;
+        padding: 10px 18px;
+        font-size: 13px;
+      }
+
+      .divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border);
+      }
+
+      .preview-container {
+        background: var(--bg-light);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .preview-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 40px 20px;
+        background: var(--bg-light);
+      }
+
+      .page {
+        width: 8.5in;
+        height: 11in;
+        background: white;
+        margin: 0 auto 30px;
+        padding: 0.5in;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        flex-direction: column;
+        font-size: 11pt;
+        line-height: 1.6;
+        color: var(--text-dark);
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .doc-title {
+        text-align: center;
+        font-size: 18pt;
+        font-weight: 700;
+        margin-bottom: 10pt;
+        border-bottom: 3pt solid var(--primary);
+        padding-bottom: 10pt;
+        color: var(--primary);
+      }
+
+      .doc-subtitle {
+        text-align: center;
+        font-size: 10pt;
+        color: var(--text-light);
+        margin-bottom: 15pt;
+        font-weight: 500;
+      }
+
+      .doc-note {
+        text-align: center;
+        font-size: 9pt;
+        color: var(--text-light);
+        font-style: italic;
+        margin-bottom: 15pt;
+        padding: 10pt;
+        background: var(--bg-light);
+        border-left: 2pt solid var(--primary);
+      }
+
+      .page-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .entries-container {
+        flex: 1;
+      }
+
+      .index-entry {
+        display: flex;
+        align-items: baseline;
+        margin-bottom: 8pt;
+        gap: 8pt;
+      }
+
+      .index-entry-text {
+        flex-shrink: 0;
+        color: var(--text-dark);
+      }
+
+      .index-entry-dots {
+        flex: 1;
+        border-bottom: 1pt dotted var(--text-dark);
+        margin: 0 4pt;
+      }
+
+      .index-entry-page {
+        flex-shrink: 0;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .page-footer {
+        margin-top: 10pt;
+        padding-top: 10pt;
+        border-top: 1pt solid var(--border);
+        font-size: 9pt;
+        color: var(--text-light);
+        text-align: center;
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-light);
+        text-align: center;
+        gap: 16px;
+        padding: 40px;
+      }
+
+      .empty-state-icon {
+        font-size: 48px;
+        opacity: 0.3;
+        font-weight: bold;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideUp 0.3s ease;
+        z-index: 1000;
+        max-width: 400px;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .toast.success {
+        border-left: 4px solid var(--success);
+      }
+
+      .toast.error {
+        border-left: 4px solid var(--danger);
+      }
+
+      .search-box {
+        position: relative;
+        margin-bottom: 16px;
+      }
+
+      .search-box input {
+        padding-left: 36px;
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+        pointer-events: none;
+        font-size: 14px;
+      }
+
+      .shortcuts-hint {
+        font-size: 11px;
+        color: var(--text-light);
+        text-align: center;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+
+      .keyboard-shortcut {
+        display: inline-block;
+        background: var(--bg-lighter);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        margin: 0 2px;
+        font-family: monospace;
+      }
+
+      .note-indicator {
+        font-size: 12px;
+        color: var(--primary);
+        font-weight: 600;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border);
+      }
+
+      .dropdown-menu {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: var(--shadow);
+        padding: 12px 0;
+        z-index: 1;
+        border-radius: 8px;
+        bottom: 100%;
+        margin-bottom: 8px;
+      }
+
+      .dropdown-content a {
+        color: var(--text-dark);
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+
+      .dropdown-content a:hover {
+        background-color: var(--bg-light);
+      }
+
+      .dropdown-menu.active .dropdown-content {
+        display: block;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s ease;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+        padding: 32px;
+        max-width: 500px;
+        width: 90%;
+        animation: slideUp 0.3s ease;
+      }
+
+      .modal h2 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--text-dark);
+      }
+
+      .modal-subtitle {
+        font-size: 13px;
+        color: var(--text-light);
+        margin-bottom: 24px;
+        font-weight: 500;
+      }
+
+      .modal-info {
+        background: var(--bg-light);
+        border-left: 4px solid var(--primary);
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: var(--text-dark);
+      }
+
+      .modal-info strong {
+        display: block;
+        color: var(--primary);
+        margin-bottom: 4px;
+      }
+
+      .modal-form {
+        margin-bottom: 24px;
+      }
+
+      .modal-form label {
+        margin-bottom: 8px;
+      }
+
+      .modal-form input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .modal-form input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .modal-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .modal-buttons button {
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 8px;
+      }
+
+      .modal-buttons .cancel {
+        background: var(--bg-lighter);
+        color: var(--text-dark);
+        border: 2px solid var(--border);
+      }
+
+      .modal-buttons .cancel:hover {
+        background: var(--border);
+      }
+
+      .size-input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .size-info {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-top: 12px;
+        padding: 8px;
+        background: var(--bg-lighter);
+        border-radius: 6px;
+      }
+
+      @media (max-width: 1200px) {
         .app-container {
-            max-width: 1600px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 20px;
-            min-height: calc(100vh - 40px);
+          grid-template-columns: 1fr;
         }
-
-        /* SIDEBAR PANEL */
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+        .page {
+          transform: scale(0.9);
+          transform-origin: top center;
         }
+      }
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-        }
-
-        .header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header p {
-            font-size: 13px;
-            color: var(--text-light);
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        textarea {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s;
-            font-family: inherit;
-            background: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        button {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-        button.secondary {
-            background: var(--bg-lighter);
-            color: var(--text-dark);
-            border: 2px solid var(--border);
-        }
-
-        button.secondary:hover {
-            background: var(--border);
-            border-color: var(--text-light);
-        }
-
-        button.danger {
-            background: var(--danger);
-        }
-
-        button.danger:hover {
-            background: #c82333;
-        }
-
-        button.small {
-            padding: 8px 12px;
-            font-size: 12px;
-            width: auto;
-        }
-
-        /* STATS */
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-box {
-            background: linear-gradient(135deg, var(--bg-light), var(--bg-lighter));
-            padding: 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: var(--text-light);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ENTRIES LIST */
-        .entries-section {
-            max-height: 500px;
-            overflow-y: auto;
-            border-radius: 8px;
-        }
-
-        .entries-section h3 {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-dark);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .entry-item {
-            background: var(--bg-light);
-            border: 2px solid var(--border);
-            padding: 14px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
-            cursor: grab;
-        }
-
-        .entry-item:hover {
-            background: var(--bg-lighter);
-            border-color: var(--primary);
-        }
-
-        .entry-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .entry-title {
-            font-weight: 600;
-            color: var(--text-dark);
-            font-size: 14px;
-            word-break: break-word;
-        }
-
-        .entry-page {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .entry-page:hover {
-            transform: scale(1.1);
-        }
-
-        .entry-actions {
-            display: flex;
-            gap: 6px;
-        }
-
-        .delete-btn {
-            background: var(--danger);
-            padding: 6px 10px;
-            font-size: 12px;
-            width: auto;
-            border-radius: 6px;
-            margin: 0;
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-        }
-
-        /* PREVIEW PANEL */
-        .main-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
+      @media (max-width: 768px) {
         .toolbar {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
+          flex-direction: column;
         }
-
         .toolbar button {
-            width: auto;
-            padding: 10px 18px;
-            font-size: 13px;
+          width: 100%;
         }
-
-        .divider {
-            width: 1px;
-            height: 24px;
-            background: var(--border);
+        .button-group {
+          grid-template-columns: 1fr;
         }
+        .page {
+          width: 100%;
+          height: auto;
+          transform: scale(1);
+        }
+        .preview-area {
+          padding: 20px;
+        }
+        .modal {
+          width: 95%;
+          padding: 24px;
+        }
+      }
 
+      @media print {
+        body {
+          background: white;
+          padding: 0;
+        }
+        .sidebar,
+        .toolbar {
+          display: none !important;
+        }
+        .app-container {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
         .preview-container {
-            background: var(--bg-light);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
+          background: white;
+          box-shadow: none;
+          border-radius: 0;
+        }
+        .preview-area {
+          padding: 0;
+          background: white;
+        }
+        .page {
+          page-break-after: always;
+          box-shadow: none;
+          margin: 0;
+          animation: none;
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--bg-light);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-light);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <div class="sidebar">
+        <div class="card header">
+          <h1>Index</h1>
+          <p>Documentation Index Generator</p>
+        </div>
+
+        <div class="card">
+          <div class="stats">
+            <div class="stat-box">
+              <div class="stat-label">Total Entries</div>
+              <div class="stat-value" id="statEntries">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Pages</div>
+              <div class="stat-value" id="statPages">1</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label for="docTitle">Document Title</label>
+            <input
+              type="text"
+              id="docTitle"
+              placeholder="e.g., Technical Documentation"
+              oninput="updatePreview()"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="docNote">Document Note (Optional)</label>
+            <textarea
+              id="docNote"
+              placeholder="e.g., Last updated: January 2024"
+              oninput="updatePreview()"
+            ></textarea>
+            <div class="note-indicator" id="noteStatus"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="entryTitle">Entry Title</label>
+            <input
+              type="text"
+              id="entryTitle"
+              placeholder="e.g., Installation Guide"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="pageNum">Page Number</label>
+            <input type="number" id="pageNum" placeholder="e.g., 5" min="1" />
+          </div>
+
+          <div class="button-group">
+            <button onclick="addEntry()" style="grid-column: 1 / -1">
+              Add Entry
+            </button>
+          </div>
+
+          <div class="shortcuts-hint">
+            Press <span class="keyboard-shortcut">Enter</span> to add •
+            <span class="keyboard-shortcut">Ctrl+S</span> to save
+          </div>
+        </div>
+
+        <div
+          class="card"
+          id="entriesCard"
+          style="
+            display: none;
+            flex: 1;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            flex: 1;
-        }
-
-        .preview-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 40px 20px;
-            background: var(--bg-light);
-        }
-
-        .page {
-            width: 8.5in;
-            height: 11in;
-            background: white;
-            margin: 0 auto 30px;
-            padding: 0.5in;
-            box-shadow: var(--shadow-lg);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            font-size: 11pt;
-            line-height: 1.6;
-            color: var(--text-dark);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .doc-title {
-            text-align: center;
-            font-size: 18pt;
-            font-weight: 700;
-            margin-bottom: 10pt;
-            border-bottom: 3pt solid var(--primary);
-            padding-bottom: 10pt;
-            color: var(--primary);
-        }
-
-        .doc-subtitle {
-            text-align: center;
-            font-size: 10pt;
-            color: var(--text-light);
-            margin-bottom: 15pt;
-            font-weight: 500;
-        }
-
-        .doc-note {
-            text-align: center;
-            font-size: 9pt;
-            color: var(--text-light);
-            font-style: italic;
-            margin-bottom: 15pt;
-            padding: 10pt;
-            background: var(--bg-light);
-            border-left: 2pt solid var(--primary);
-        }
-
-        .page-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .entries-container {
-            flex: 1;
-        }
-
-        .index-entry {
-            display: flex;
-            align-items: baseline;
-            margin-bottom: 8pt;
-            gap: 8pt;
-        }
-
-        .index-entry-text {
-            flex-shrink: 0;
-            color: var(--text-dark);
-        }
-
-        .index-entry-dots {
-            flex: 1;
-            border-bottom: 1pt dotted var(--text-dark);
-            margin: 0 4pt;
-        }
-
-        .index-entry-page {
-            flex-shrink: 0;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .page-footer {
-            margin-top: 10pt;
-            padding-top: 10pt;
-            border-top: 1pt solid var(--border);
-            font-size: 9pt;
-            color: var(--text-light);
-            text-align: center;
-        }
-
-        .page-number {
-            font-weight: bold;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--text-light);
-            text-align: center;
-            gap: 16px;
-            padding: 40px;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            opacity: 0.3;
-            font-weight: bold;
-        }
-
-        .empty-state-text {
-            font-size: 16px;
-            max-width: 300px;
-        }
-
-        /* TOAST NOTIFICATIONS */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideUp 0.3s ease;
-            z-index: 1000;
-            max-width: 400px;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .toast.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .toast.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        .toast-icon {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        /* SEARCH */
-        .search-box {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .search-box input {
-            padding-left: 36px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-            pointer-events: none;
-            font-size: 14px;
-        }
-
-        /* KEYBOARD SHORTCUTS */
-        .shortcuts-hint {
-            font-size: 11px;
-            color: var(--text-light);
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .keyboard-shortcut {
-            display: inline-block;
-            background: var(--bg-lighter);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            margin: 0 2px;
-            font-family: monospace;
-        }
-
-        .note-indicator {
-            font-size: 12px;
-            color: var(--primary);
-            font-weight: 600;
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid var(--border);
-        }
-
-        .dropdown-menu {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: white;
-            min-width: 200px;
-            box-shadow: var(--shadow);
-            padding: 12px 0;
-            z-index: 1;
-            border-radius: 8px;
-            bottom: 100%;
-            margin-bottom: 8px;
-        }
-
-        .dropdown-content a {
-            color: var(--text-dark);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
-        }
-
-        .dropdown-content a:hover {
-            background-color: var(--bg-light);
-        }
-
-        .dropdown-menu.active .dropdown-content {
-            display: block;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 1200px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-
-            .page {
-                transform: scale(0.9);
-                transform-origin: top center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .toolbar {
-                flex-direction: column;
-            }
-
-            .toolbar button {
-                width: 100%;
-            }
-
-            .button-group {
-                grid-template-columns: 1fr;
-            }
-
-            .page {
-                width: 100%;
-                height: auto;
-                transform: scale(1);
-            }
-
-            .preview-area {
-                padding: 20px;
-            }
-        }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .sidebar,
-            .toolbar {
-                display: none !important;
-            }
-
-            .app-container {
-                grid-template-columns: 1fr;
-                gap: 0;
-                min-height: auto;
-            }
-
-            .main-panel {
-                gap: 0;
-            }
-
-            .preview-container {
-                background: white;
-                box-shadow: none;
-                border-radius: 0;
-            }
-
-            .preview-area {
-                padding: 0;
-                background: white;
-            }
-
-            .page {
-                page-break-after: always;
-                box-shadow: none;
-                margin: 0;
-                animation: none;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-light);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-light);
-        }
-    </style>
-</head>
-<body>
-    <div class="app-container">
-        <!-- SIDEBAR -->
-        <div class="sidebar">
-            <div class="card header">
-                <h1>Index</h1>
-                <p>Documentation Index Generator</p>
-            </div>
-
-            <!-- STATS -->
-            <div class="card">
-                <div class="stats">
-                    <div class="stat-box">
-                        <div class="stat-label">Total Entries</div>
-                        <div class="stat-value" id="statEntries">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Pages</div>
-                        <div class="stat-value" id="statPages">1</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- FORM -->
-            <div class="card">
-                <div class="form-group">
-                    <label for="docTitle">Document Title</label>
-                    <input type="text" id="docTitle" placeholder="e.g., Technical Documentation" oninput="updatePreview()">
-                </div>
-
-                <div class="form-group">
-                    <label for="docNote">Document Note (Optional)</label>
-                    <textarea id="docNote" placeholder="e.g., Last updated: January 2024" oninput="updatePreview()"></textarea>
-                    <div class="note-indicator" id="noteStatus"></div>
-                </div>
-
-                <div class="form-group">
-                    <label for="entryTitle">Entry Title</label>
-                    <input type="text" id="entryTitle" placeholder="e.g., Installation Guide">
-                </div>
-
-                <div class="form-group">
-                    <label for="pageNum">Page Number</label>
-                    <input type="number" id="pageNum" placeholder="e.g., 5" min="1">
-                </div>
-
-                <div class="button-group">
-                    <button onclick="addEntry()" style="grid-column: 1 / -1;">
-                        Add Entry
-                    </button>
-                </div>
-
-                <div class="shortcuts-hint">
-                    Press <span class="keyboard-shortcut">Enter</span> to add • <span class="keyboard-shortcut">Ctrl+S</span> to save
-                </div>
-            </div>
-
-            <!-- ENTRIES LIST -->
-            <div class="card" id="entriesCard" style="display: none; flex: 1; overflow: hidden; display: flex; flex-direction: column;">
-                <div class="search-box">
-                    <span class="search-icon">⌕</span>
-                    <input type="text" id="searchBox" placeholder="Search entries..." oninput="filterEntries()">
-                </div>
-                <div class="entries-section" id="entriesList"></div>
-                <button class="danger" onclick="clearAll()" style="margin-top: auto;">
-                    Clear All
-                </button>
-            </div>
-
-            <!-- ACTIONS -->
-            <div class="card" style="display: flex; flex-direction: column; gap: 12px;">
-                <button class="secondary" onclick="printIndex()">Print</button>
-                <div class="dropdown-menu" id="saveDropdown">
-                    <button class="secondary" onclick="toggleDropdown('saveDropdown')">Save</button>
-                    <div class="dropdown-content">
-                        <a onclick="downloadJSON()">Save as JSON</a>
-                        <a onclick="downloadCSV()">Save as CSV</a>
-                    </div>
-                </div>
-                <div class="dropdown-menu" id="loadDropdown">
-                    <button class="secondary" onclick="toggleDropdown('loadDropdown')">Load</button>
-                    <div class="dropdown-content">
-                        <a onclick="uploadJSON()">Load from JSON</a>
-                        <a onclick="uploadCSV()">Load from CSV</a>
-                        <a onclick="downloadSampleJSON()">Sample JSON</a>
-                        <a onclick="downloadSampleCSV()">Sample CSV</a>
-                    </div>
-                </div>
-            </div>
+          "
+        >
+          <div class="search-box">
+            <span class="search-icon">⌕</span>
+            <input
+              type="text"
+              id="searchBox"
+              placeholder="Search entries..."
+              oninput="filterEntries()"
+            />
+          </div>
+          <div class="entries-section" id="entriesList"></div>
+          <button class="danger" onclick="clearAll()" style="margin-top: auto">
+            Clear All
+          </button>
         </div>
 
-        <!-- MAIN PANEL -->
-        <div class="main-panel">
-            <div class="toolbar">
-                <button class="secondary" onclick="printIndex()">Print</button>
-                <button class="secondary" onclick="downloadJSON()">Save JSON</button>
-                <button class="secondary" onclick="downloadCSV()">Save CSV</button>
-                <button class="secondary" onclick="uploadJSON()">Load JSON</button>
-                <button class="secondary" onclick="uploadCSV()">Load CSV</button>
-                <div class="divider"></div>
-                <button class="secondary" onclick="clearAll()">Clear</button>
+        <div
+          class="card"
+          style="display: flex; flex-direction: column; gap: 12px"
+        >
+          <button class="secondary" onclick="printIndex()">Print</button>
+          <div class="dropdown-menu" id="saveDropdown">
+            <button class="secondary" onclick="toggleDropdown('saveDropdown')">
+              Save
+            </button>
+            <div class="dropdown-content">
+              <a onclick="downloadJSON()">Save as JSON</a>
+              <a onclick="downloadCSV()">Save as CSV</a>
             </div>
-
-            <div class="preview-container">
-                <div class="preview-area" id="preview">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">≡</div>
-                        <div class="empty-state-text">
-                            Add entries from the left panel to see your documentation index
-                        </div>
-                    </div>
-                </div>
+          </div>
+          <div class="dropdown-menu" id="loadDropdown">
+            <button class="secondary" onclick="toggleDropdown('loadDropdown')">
+              Load
+            </button>
+            <div class="dropdown-content">
+              <a onclick="uploadJSON()">Load from JSON</a>
+              <a onclick="uploadCSV()">Load from CSV</a>
+              <a onclick="downloadSampleJSON()">Sample JSON</a>
+              <a onclick="downloadSampleCSV()">Sample CSV</a>
             </div>
+          </div>
         </div>
+      </div>
+
+      <div class="main-panel">
+        <div class="toolbar">
+          <button class="secondary" onclick="printIndex()">Print</button>
+          <button class="secondary" onclick="downloadJSON()">Save JSON</button>
+          <button class="secondary" onclick="downloadCSV()">Save CSV</button>
+          <button class="secondary" onclick="uploadJSON()">Load JSON</button>
+          <button class="secondary" onclick="uploadCSV()">Load CSV</button>
+          <div class="divider"></div>
+          <button class="secondary" onclick="clearAll()">Clear</button>
+        </div>
+
+        <div class="preview-container">
+          <div class="preview-area" id="preview">
+            <div class="empty-state">
+              <div class="empty-state-icon">≡</div>
+              <div class="empty-state-text">
+                Add entries from the left panel to see your documentation index
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <input type="file" id="jsonFile" style="display: none;" accept=".json">
-    <input type="file" id="csvFile" style="display: none;" accept=".csv">
+    <!-- INSERT MODAL -->
+    <div class="modal-overlay" id="insertModal">
+      <div class="modal">
+        <h2>Insert New Entry</h2>
+        <p class="modal-subtitle">Add a new entry at this position</p>
+        <div class="modal-info">
+          <strong>Insert Position:</strong>
+          <span id="insertPositionText"></span>
+        </div>
+        <div class="modal-form">
+          <label for="insertTitle">Entry Title</label>
+          <input type="text" id="insertTitle" placeholder="e.g., New Section" />
+        </div>
+        <div
+          id="duplicateWarning"
+          class="modal-info"
+          style="
+            display: none;
+            background: #fff3cd;
+            border-left-color: var(--warning);
+          "
+        >
+          <strong>Duplicate Title Detected</strong>
+          <span
+            >This title already exists. How many copies would you like to
+            insert?</span
+          >
+          <div class="size-input-group">
+            <div>
+              <label
+                for="insertSize"
+                style="text-transform: none; font-size: 12px"
+                >Number of copies</label
+              >
+              <input
+                type="number"
+                id="insertSize"
+                min="1"
+                value="2"
+                style="padding: 8px"
+              />
+            </div>
+            <div class="size-info">
+              <strong>Total pages:</strong><br />
+              <span id="sizePreview">Pages 1-2 will be assigned</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-buttons">
+          <button class="cancel" onclick="closeInsertModal()">Cancel</button>
+          <button onclick="confirmInsert()">Insert Entry</button>
+        </div>
+      </div>
+    </div>
+
+    <input type="file" id="jsonFile" style="display: none" accept=".json" />
+    <input type="file" id="csvFile" style="display: none" accept=".csv" />
 
     <script>
-        let entries = [];
-        let filteredEntries = [];
-        let draggedIndex = null;
+      let entries = [];
+      let filteredEntries = [];
+      let insertConfig = null;
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? '✓' : '!';
-            toast.innerHTML = `
-                <span class="toast-icon">${icon}</span>
-                <span>${message}</span>
-            `;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+      function showToast(message, type = "success") {
+        const toast = document.createElement("div");
+        toast.className = `toast ${type}`;
+        const icon = type === "success" ? "✓" : "!";
+        toast.innerHTML = `<span style="font-weight:bold">${icon}</span><span>${message}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      function toggleDropdown(id) {
+        document.getElementById(id).classList.toggle("active");
+      }
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".dropdown-menu")) {
+          document
+            .querySelectorAll(".dropdown-menu")
+            .forEach((m) => m.classList.remove("active"));
+        }
+      });
+
+      function updateNoteStatus() {
+        const note = document.getElementById("docNote").value.trim();
+        const status = document.getElementById("noteStatus");
+        if (note) {
+          status.textContent = "Note added";
+          status.style.color = "var(--success)";
+        } else {
+          status.textContent = "No note added";
+          status.style.color = "var(--text-light)";
+        }
+      }
+
+      function addEntry() {
+        const entryTitle = document.getElementById("entryTitle").value.trim();
+        const pageNum = document.getElementById("pageNum").value.trim();
+
+        if (!entryTitle) {
+          showToast("Entry title is required", "error");
+          document.getElementById("entryTitle").focus();
+          return;
         }
 
-        function toggleDropdown(id) {
-            document.getElementById(id).classList.toggle('active');
+        if (!pageNum) {
+          showToast("Page number is required", "error");
+          document.getElementById("pageNum").focus();
+          return;
         }
 
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.dropdown-menu')) {
-                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active'));
-            }
-        });
+        entries.push({ title: entryTitle, page: parseInt(pageNum) });
+        document.getElementById("entryTitle").value = "";
+        document.getElementById("pageNum").value = "";
+        document.getElementById("entryTitle").focus();
 
-        function updateNoteStatus() {
-            const note = document.getElementById('docNote').value.trim();
-            const status = document.getElementById('noteStatus');
-            if (note) {
-                status.textContent = 'Note added';
-                status.style.color = 'var(--success)';
-            } else {
-                status.textContent = 'No note added';
-                status.style.color = 'var(--text-light)';
-            }
+        showToast("Entry added successfully");
+        renderEntries();
+        updatePreview();
+      }
+
+      function titleExists(title) {
+        return entries.some(
+          (e) => e.title.toLowerCase() === title.toLowerCase(),
+        );
+      }
+
+      function openInsertModal(entryIndex, position) {
+        insertConfig = { entryIndex, position };
+        const entry = entries[entryIndex];
+        const posText =
+          position === "before"
+            ? `Before "${entry.title}" (currently page ${entry.page})`
+            : `After "${entry.title}" (currently page ${entry.page})`;
+        document.getElementById("insertPositionText").textContent = posText;
+        document.getElementById("insertTitle").value = "";
+        document.getElementById("insertSize").value = 2;
+        document.getElementById("duplicateWarning").style.display = "none";
+        document.getElementById("insertTitle").focus();
+        document.getElementById("insertModal").classList.add("active");
+      }
+
+      function closeInsertModal() {
+        document.getElementById("insertModal").classList.remove("active");
+        insertConfig = null;
+      }
+
+      function updateSizePreview() {
+        const size = parseInt(document.getElementById("insertSize").value) || 1;
+        const startPage = insertConfig
+          ? entries[insertConfig.entryIndex].page
+          : 1;
+        const endPage = startPage + size - 1;
+        document.getElementById("sizePreview").textContent =
+          `Pages ${startPage}-${endPage} will be assigned`;
+      }
+
+      document
+        .getElementById("insertSize")
+        .addEventListener("input", updateSizePreview);
+
+      function confirmInsert() {
+        const title = document.getElementById("insertTitle").value.trim();
+        if (!title) {
+          showToast("Entry title is required", "error");
+          document.getElementById("insertTitle").focus();
+          return;
         }
 
-        function addEntry() {
-            const entryTitle = document.getElementById('entryTitle').value.trim();
-            const pageNum = document.getElementById('pageNum').value.trim();
+        const isDuplicate = titleExists(title);
+        const warningDiv = document.getElementById("duplicateWarning");
 
-            if (!entryTitle) {
-                showToast('Entry title is required', 'error');
-                document.getElementById('entryTitle').focus();
-                return;
+        if (isDuplicate) {
+          warningDiv.style.display = "block";
+          document.getElementById("insertTitle").disabled = true;
+          return;
+        }
+
+        performInsert(title, 1);
+      }
+
+      function performInsert(title, size) {
+        const { entryIndex, position } = insertConfig;
+        const refEntry = entries[entryIndex];
+
+        if (position === "before") {
+          const insertPageStart = Math.max(1, refEntry.page);
+          // Shift all entries from insertPageStart onwards by size
+          for (let i = 0; i < entries.length; i++) {
+            if (entries[i].page >= insertPageStart) {
+              entries[i].page += size;
             }
-
-            if (!pageNum) {
-                showToast('Page number is required', 'error');
-                document.getElementById('pageNum').focus();
-                return;
-            }
-
-            entries.push({
-                title: entryTitle,
-                page: parseInt(pageNum)
+          }
+          // Insert size copies
+          for (let i = 0; i < size; i++) {
+            entries.splice(entryIndex + i, 0, {
+              title,
+              page: insertPageStart + i,
             });
-
-            document.getElementById('entryTitle').value = '';
-            document.getElementById('pageNum').value = '';
-            document.getElementById('entryTitle').focus();
-
-            showToast('Entry added successfully');
-            renderEntries();
-            updatePreview();
-        }
-
-        function deleteEntry(idx) {
-            entries.splice(idx, 1);
-            showToast('Entry deleted');
-            renderEntries();
-            updatePreview();
-        }
-
-        function filterEntries() {
-            const query = document.getElementById('searchBox').value.toLowerCase();
-            filteredEntries = entries.filter(e => e.title.toLowerCase().includes(query));
-            renderEntries();
-        }
-
-        function renderEntries() {
-            const displayEntries = document.getElementById('searchBox')?.value ? filteredEntries : entries;
-            const card = document.getElementById('entriesCard');
-
-            if (entries.length === 0) {
-                card.style.display = 'none';
-                return;
+          }
+          showToast(
+            `${size} copy(ies) of "${title}" inserted before page ${insertPageStart}`,
+          );
+        } else {
+          const insertPageStart = refEntry.page + 1;
+          // Shift all entries from insertPageStart onwards by size
+          for (let i = 0; i < entries.length; i++) {
+            if (entries[i].page >= insertPageStart) {
+              entries[i].page += size;
             }
+          }
+          // Insert size copies
+          for (let i = 0; i < size; i++) {
+            entries.splice(entryIndex + 1 + i, 0, {
+              title,
+              page: insertPageStart + i,
+            });
+          }
+          showToast(
+            `${size} copy(ies) of "${title}" inserted after page ${refEntry.page}`,
+          );
+        }
 
-            card.style.display = 'flex';
+        closeInsertModal();
+        renderEntries();
+        updatePreview();
+      }
 
-            const sorted = [...displayEntries].sort((a, b) => a.page - b.page);
-            const html = sorted.map((e, i) => {
-                const realIdx = entries.indexOf(e);
-                return `
-                    <div class="entry-item" draggable="true" ondragstart="dragStart(${realIdx})" ondragover="dragOver()" ondrop="dragEnd(${realIdx})">
-                        <div class="entry-content">
-                            <div class="entry-title">${escapeHtml(e.title)}</div>
+      document.addEventListener("keydown", (e) => {
+        if (
+          document.getElementById("insertModal").classList.contains("active")
+        ) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const isDuplicate = titleExists(
+              document.getElementById("insertTitle").value.trim(),
+            );
+            if (isDuplicate) {
+              performInsert(
+                document.getElementById("insertTitle").value.trim(),
+                parseInt(document.getElementById("insertSize").value),
+              );
+            } else {
+              confirmInsert();
+            }
+          }
+          if (e.key === "Escape") closeInsertModal();
+        }
+      });
+
+      function updatePageNumber(entryIndex, newPage) {
+        const oldPage = entries[entryIndex].page;
+
+        if (oldPage === newPage) return;
+        newPage = Math.max(1, newPage);
+
+        if (newPage > oldPage) {
+          for (let i = 0; i < entries.length; i++) {
+            if (i !== entryIndex && entries[i].page > oldPage) {
+              entries[i].page += newPage - oldPage;
+            }
+          }
+        } else if (newPage < oldPage) {
+          for (let i = 0; i < entries.length; i++) {
+            if (
+              i !== entryIndex &&
+              entries[i].page >= newPage &&
+              entries[i].page < oldPage
+            ) {
+              entries[i].page += 1;
+            }
+          }
+        }
+
+        entries[entryIndex].page = newPage;
+        showToast(`Page numbers updated. Entry moved to page ${newPage}`);
+        renderEntries();
+        updatePreview();
+      }
+
+      function deleteEntry(idx) {
+        entries.splice(idx, 1);
+        showToast("Entry deleted");
+        renderEntries();
+        updatePreview();
+      }
+
+      function filterEntries() {
+        const query = document.getElementById("searchBox").value.toLowerCase();
+        filteredEntries = entries.filter((e) =>
+          e.title.toLowerCase().includes(query),
+        );
+        renderEntries();
+      }
+
+      function renderEntries() {
+        const displayEntries = document.getElementById("searchBox")?.value
+          ? filteredEntries
+          : entries;
+        const card = document.getElementById("entriesCard");
+
+        if (entries.length === 0) {
+          card.style.display = "none";
+          return;
+        }
+
+        card.style.display = "flex";
+
+        const sorted = [...displayEntries].sort((a, b) => a.page - b.page);
+        let html = "";
+
+        sorted.forEach((e, displayIdx) => {
+          const realIdx = entries.indexOf(e);
+          html += `
+                    <div class="entry-wrapper">
+                        <div class="insert-divider">
+                            <button onclick="openInsertModal(${realIdx}, 'before')" title="Insert entry before this">+ Insert</button>
+                            <span>Before</span>
                         </div>
-                        <div class="entry-page" onclick="editPage(${realIdx})">${e.page}</div>
-                        <div class="entry-actions">
-                            <button class="delete-btn" onclick="deleteEntry(${realIdx})">Remove</button>
+                        <div class="entry-item">
+                            <div class="entry-content">
+                                <div class="entry-title">${escapeHtml(e.title)}</div>
+                            </div>
+                            <div class="entry-page" title="Click to edit page number" onclick="editPage(${realIdx})">${e.page}</div>
+                            <div class="entry-actions">
+                                <button class="delete-btn" onclick="deleteEntry(${realIdx})">Remove</button>
+                            </div>
                         </div>
                     </div>
                 `;
-            }).join('');
+        });
 
-            document.getElementById('entriesList').innerHTML = html;
-            updateStats();
+        if (sorted.length > 0) {
+          const lastIdx = entries.indexOf(sorted[sorted.length - 1]);
+          html += `
+                    <div class="insert-divider" style="opacity: 1; margin-top: 6px;">
+                        <button onclick="openInsertModal(${lastIdx}, 'after')" title="Insert entry after this">+ Insert</button>
+                        <span>After</span>
+                    </div>
+                `;
         }
 
-        function updateStats() {
-            document.getElementById('statEntries').textContent = entries.length;
-            const maxEntriesPerPage = 30;
-            const pages = Math.ceil(entries.length / maxEntriesPerPage) || 1;
-            document.getElementById('statPages').textContent = pages;
-        }
+        document.getElementById("entriesList").innerHTML = html;
+        updateStats();
+      }
 
-        function dragStart(idx) {
-            draggedIndex = idx;
-        }
+      function updateStats() {
+        document.getElementById("statEntries").textContent = entries.length;
+        const maxEntriesPerPage = 30;
+        const pages = Math.ceil(entries.length / maxEntriesPerPage) || 1;
+        document.getElementById("statPages").textContent = pages;
+      }
 
-        function dragOver() {
-            return false;
+      function editPage(idx) {
+        const newPage = prompt(
+          `Edit page number for "${entries[idx].title}":\n\nCurrent: ${entries[idx].page}`,
+          entries[idx].page,
+        );
+        if (newPage !== null && newPage.trim()) {
+          const parsedPage = parseInt(newPage);
+          if (!isNaN(parsedPage) && parsedPage > 0) {
+            updatePageNumber(idx, parsedPage);
+          } else {
+            showToast("Please enter a valid page number", "error");
+          }
         }
+      }
 
-        function dragEnd(targetIdx) {
-            if (draggedIndex === null || draggedIndex === targetIdx) return;
-            const [moved] = entries.splice(draggedIndex, 1);
-            entries.splice(targetIdx, 0, moved);
-            draggedIndex = null;
-            renderEntries();
-            updatePreview();
-        }
+      function updatePreview() {
+        const docTitle =
+          document.getElementById("docTitle").value || "Untitled";
+        renderPreview(docTitle);
+      }
 
-        function editPage(idx) {
-            const newPage = prompt('Enter new page number:', entries[idx].page);
-            if (newPage && !isNaN(newPage)) {
-                entries[idx].page = parseInt(newPage);
-                renderEntries();
-                updatePreview();
-                showToast('Page number updated');
-            }
-        }
-
-        function updatePreview() {
-            const docTitle = document.getElementById('docTitle').value || 'Untitled';
-            renderPreview(docTitle);
-        }
-
-        function renderPreview(docTitle) {
-            if (entries.length === 0) {
-                document.getElementById('preview').innerHTML = `
+      function renderPreview(docTitle) {
+        if (entries.length === 0) {
+          document.getElementById("preview").innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">≡</div>
                         <div class="empty-state-text">
@@ -979,211 +1358,222 @@
                         </div>
                     </div>
                 `;
-                return;
-            }
+          return;
+        }
 
-            const docNote = document.getElementById('docNote').value.trim();
-            const sortedEntries = [...entries].sort((a, b) => a.page - b.page);
-            const maxEntriesPerPage = 30;
-            const pages = [];
-            let currentPage = [];
+        const docNote = document.getElementById("docNote").value.trim();
+        const sortedEntries = [...entries].sort((a, b) => a.page - b.page);
+        const maxEntriesPerPage = 30;
+        const pages = [];
+        let currentPage = [];
 
-            sortedEntries.forEach(entry => {
-                if (currentPage.length >= maxEntriesPerPage) {
-                    pages.push(currentPage);
-                    currentPage = [];
-                }
-                currentPage.push(entry);
-            });
+        sortedEntries.forEach((entry) => {
+          if (currentPage.length >= maxEntriesPerPage) {
+            pages.push(currentPage);
+            currentPage = [];
+          }
+          currentPage.push(entry);
+        });
 
-            if (currentPage.length > 0) {
-                pages.push(currentPage);
-            }
+        if (currentPage.length > 0) {
+          pages.push(currentPage);
+        }
 
-            let html = '';
-            pages.forEach((pageEntries, pageIdx) => {
-                html += `
+        let html = "";
+        pages.forEach((pageEntries, pageIdx) => {
+          html += `
                     <div class="page">
                         <div class="doc-title">${escapeHtml(docTitle)}</div>
                         <div class="doc-subtitle">Index</div>
-                        ${docNote && pageIdx === 0 ? `<div class="doc-note">${escapeHtml(docNote)}</div>` : ''}
+                        ${docNote && pageIdx === 0 ? `<div class="doc-note">${escapeHtml(docNote)}</div>` : ""}
                         <div class="page-content">
                             <div class="entries-container">
-                                ${pageEntries.map(e => `
+                                ${pageEntries
+                                  .map(
+                                    (e) => `
                                     <div class="index-entry">
                                         <span class="index-entry-text">${escapeHtml(e.title)}</span>
                                         <span class="index-entry-dots"></span>
                                         <span class="index-entry-page">${e.page}</span>
                                     </div>
-                                `).join('')}
+                                `,
+                                  )
+                                  .join("")}
                             </div>
                         </div>
                         <div class="page-footer">
-                            <span class="page-number">Page ${pageIdx + 1}</span>
+                            <span>Page ${pageIdx + 1}</span>
                         </div>
                     </div>
                 `;
-            });
+        });
 
-            document.getElementById('preview').innerHTML = html;
+        document.getElementById("preview").innerHTML = html;
+      }
+
+      function printIndex() {
+        window.print();
+      }
+
+      function downloadJSON() {
+        const docTitle =
+          document.getElementById("docTitle").value || "Untitled";
+        const docNote = document.getElementById("docNote").value.trim();
+        const data = {
+          title: docTitle,
+          note: docNote,
+          entries: entries,
+          exportDate: new Date().toISOString(),
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `index-${new Date().toISOString().split("T")[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Index saved as JSON");
+      }
+
+      function downloadCSV() {
+        const docTitle =
+          document.getElementById("docTitle").value || "Untitled";
+        const docNote = document.getElementById("docNote").value.trim();
+        let csv = "Title,Page\n";
+
+        if (docNote) {
+          csv = `Document Title: ${docTitle}\nNote: ${docNote}\n\nTitle,Page\n`;
         }
 
-        function printIndex() {
-            window.print();
-        }
+        entries
+          .sort((a, b) => a.page - b.page)
+          .forEach((entry) => {
+            const escapedTitle = `"${entry.title.replace(/"/g, '""')}"`;
+            csv += `${escapedTitle},${entry.page}\n`;
+          });
 
-        function downloadJSON() {
-            const docTitle = document.getElementById('docTitle').value || 'Untitled';
-            const docNote = document.getElementById('docNote').value.trim();
-            const data = {
-                title: docTitle,
-                note: docNote,
-                entries: entries,
-                exportDate: new Date().toISOString()
-            };
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `index-${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Index saved as CSV");
+      }
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `index-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Index saved as JSON');
-        }
+      function uploadJSON() {
+        document.getElementById("jsonFile").click();
+      }
+      function uploadCSV() {
+        document.getElementById("csvFile").click();
+      }
 
-        function downloadCSV() {
-            const docTitle = document.getElementById('docTitle').value || 'Untitled';
-            const docNote = document.getElementById('docNote').value.trim();
-            let csv = 'Title,Page\n';
-            
-            if (docNote) {
-                csv = `Document Title: ${docTitle}\nNote: ${docNote}\n\nTitle,Page\n`;
+      document.getElementById("jsonFile").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = JSON.parse(event.target.result);
+            document.getElementById("docTitle").value = data.title || "";
+            document.getElementById("docNote").value = data.note || "";
+            entries = data.entries || [];
+            renderEntries();
+            updatePreview();
+            updateNoteStatus();
+            showToast("Index loaded from JSON");
+          } catch (err) {
+            showToast("Invalid JSON file", "error");
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      document.getElementById("csvFile").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const csv = event.target.result;
+            const lines = csv
+              .split("\n")
+              .map((line) => line.trim())
+              .filter((line) => line);
+            entries = [];
+            let docTitle = "";
+            let docNote = "";
+            let dataStartIdx = 0;
+
+            for (let i = 0; i < Math.min(3, lines.length); i++) {
+              if (lines[i].startsWith("Document Title:")) {
+                docTitle = lines[i].replace("Document Title:", "").trim();
+                dataStartIdx = i + 1;
+              } else if (lines[i].startsWith("Note:")) {
+                docNote = lines[i].replace("Note:", "").trim();
+                dataStartIdx = i + 1;
+              } else if (lines[i].toLowerCase() === "title,page") {
+                dataStartIdx = i + 1;
+                break;
+              }
             }
 
-            entries.sort((a, b) => a.page - b.page).forEach(entry => {
-                const escapedTitle = `"${entry.title.replace(/"/g, '""')}"`;
-                csv += `${escapedTitle},${entry.page}\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `index-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Index saved as CSV');
-        }
-
-        function uploadJSON() {
-            document.getElementById('jsonFile').click();
-        }
-
-        function uploadCSV() {
-            document.getElementById('csvFile').click();
-        }
-
-        document.getElementById('jsonFile').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const data = JSON.parse(event.target.result);
-                    document.getElementById('docTitle').value = data.title || '';
-                    document.getElementById('docNote').value = data.note || '';
-                    entries = data.entries || [];
-                    renderEntries();
-                    updatePreview();
-                    updateNoteStatus();
-                    showToast('Index loaded from JSON');
-                } catch (err) {
-                    showToast('Invalid JSON file', 'error');
+            for (let i = dataStartIdx; i < lines.length; i++) {
+              const parts = lines[i].split(",");
+              if (parts.length >= 2) {
+                const title = parts[0].replace(/^"|"$/g, "").trim();
+                const page = parseInt(parts[1].trim());
+                if (title && !isNaN(page)) {
+                  entries.push({ title, page });
                 }
-            };
-            reader.readAsText(file);
+              }
+            }
+
+            if (docTitle) document.getElementById("docTitle").value = docTitle;
+            if (docNote) document.getElementById("docNote").value = docNote;
+            renderEntries();
+            updatePreview();
+            updateNoteStatus();
+            showToast("Index loaded from CSV");
+          } catch (err) {
+            showToast("Invalid CSV file", "error");
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      function downloadSampleJSON() {
+        const sample = {
+          title: "Sample Documentation",
+          note: "Last updated: January 2024",
+          entries: [
+            { title: "Introduction", page: 1 },
+            { title: "Installation Guide", page: 5 },
+            { title: "Configuration", page: 12 },
+            { title: "API Reference", page: 25 },
+            { title: "Troubleshooting", page: 45 },
+          ],
+          exportDate: new Date().toISOString(),
+        };
+
+        const blob = new Blob([JSON.stringify(sample, null, 2)], {
+          type: "application/json",
         });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "sample-index.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Sample JSON downloaded");
+      }
 
-        document.getElementById('csvFile').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const csv = event.target.result;
-                    const lines = csv.split('\n').map(line => line.trim()).filter(line => line);
-                    
-                    entries = [];
-                    let docTitle = '';
-                    let docNote = '';
-                    let dataStartIdx = 0;
-
-                    for (let i = 0; i < Math.min(3, lines.length); i++) {
-                        if (lines[i].startsWith('Document Title:')) {
-                            docTitle = lines[i].replace('Document Title:', '').trim();
-                            dataStartIdx = i + 1;
-                        } else if (lines[i].startsWith('Note:')) {
-                            docNote = lines[i].replace('Note:', '').trim();
-                            dataStartIdx = i + 1;
-                        } else if (lines[i].toLowerCase() === 'title,page') {
-                            dataStartIdx = i + 1;
-                            break;
-                        }
-                    }
-
-                    for (let i = dataStartIdx; i < lines.length; i++) {
-                        const parts = lines[i].split(',');
-                        if (parts.length >= 2) {
-                            const title = parts[0].replace(/^"|"$/g, '').trim();
-                            const page = parseInt(parts[1].trim());
-                            if (title && !isNaN(page)) {
-                                entries.push({ title, page });
-                            }
-                        }
-                    }
-
-                    if (docTitle) document.getElementById('docTitle').value = docTitle;
-                    if (docNote) document.getElementById('docNote').value = docNote;
-                    renderEntries();
-                    updatePreview();
-                    updateNoteStatus();
-                    showToast('Index loaded from CSV');
-                } catch (err) {
-                    showToast('Invalid CSV file', 'error');
-                }
-            };
-            reader.readAsText(file);
-        });
-
-        function downloadSampleJSON() {
-            const sample = {
-                title: 'Sample Documentation',
-                note: 'Last updated: January 2024',
-                entries: [
-                    { title: 'Introduction', page: 1 },
-                    { title: 'Installation Guide', page: 5 },
-                    { title: 'Configuration', page: 12 },
-                    { title: 'API Reference', page: 25 },
-                    { title: 'Troubleshooting', page: 45 }
-                ],
-                exportDate: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'sample-index.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Sample JSON downloaded');
-        }
-
-        function downloadSampleCSV() {
-            const sample = `Document Title: Sample Documentation
+      function downloadSampleCSV() {
+        const sample = `Document Title: Sample Documentation
 Note: Last updated: January 2024
 
 Title,Page
@@ -1193,48 +1583,56 @@ Configuration,12
 "API Reference",25
 Troubleshooting,45`;
 
-            const blob = new Blob([sample], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'sample-index.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast('Sample CSV downloaded');
-        }
+        const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "sample-index.csv";
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Sample CSV downloaded");
+      }
 
-        function clearAll() {
-            if (confirm('Clear all entries? This action cannot be undone.')) {
-                entries = [];
-                document.getElementById('docTitle').value = '';
-                document.getElementById('docNote').value = '';
-                document.getElementById('entryTitle').value = '';
-                document.getElementById('pageNum').value = '';
-                renderEntries();
-                updatePreview();
-                updateNoteStatus();
-                showToast('All entries cleared');
-            }
+      function clearAll() {
+        if (confirm("Clear all entries? This action cannot be undone.")) {
+          entries = [];
+          document.getElementById("docTitle").value = "";
+          document.getElementById("docNote").value = "";
+          document.getElementById("entryTitle").value = "";
+          document.getElementById("pageNum").value = "";
+          renderEntries();
+          updatePreview();
+          updateNoteStatus();
+          showToast("All entries cleared");
         }
+      }
 
-        function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        }
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
 
-        document.getElementById('entryTitle').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') addEntry();
+      document
+        .getElementById("entryTitle")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") addEntry();
         });
 
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                downloadJSON();
-            }
-        });
+      document.addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          downloadJSON();
+        }
+      });
 
-        updateStats();
-        updateNoteStatus();
+      updateStats();
+      updateNoteStatus();
     </script>
-</body>
+  </body>
 </html>

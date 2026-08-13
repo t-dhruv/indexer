@@ -8,6 +8,9 @@ index. Everything runs in the browser — no account, no upload, no server.
 
 - **Entries with page numbers** — add a title and its starting page; the list
   stays sorted by page.
+- **Automatic serial numbers** — every entry is numbered 1..n in page order, in
+  the editing list, the preview, and print. The numbers are derived, so they
+  renumber themselves after any insert, edit, or delete.
 - **Insert with page shifting** — insert an entry (or several consecutive
   pages' worth) at any position and later entries shift automatically.
 - **Inline editing** — edit page numbers in place; delete entries; search to
@@ -47,14 +50,15 @@ online).
   "title": "Meridian 400 Field Service Manual",
   "note": "Revised 14 March 2026. Supersedes revision C.",
   "entries": [
-    { "title": "Safety notices", "page": 3 },
-    { "title": "Unpacking and siting", "page": 11 }
+    { "serial": 1, "title": "Safety notices", "page": 3 },
+    { "serial": 2, "title": "Unpacking and siting", "page": 11 }
   ],
   "exportDate": "2026-03-14T00:00:00.000Z"
 }
 ```
 
-`exportDate` is written on export and ignored on import.
+`exportDate` and `serial` are written on export and ignored on import — serials
+are always recomputed from page order, so files without them load fine.
 
 ### CSV
 
@@ -62,14 +66,15 @@ online).
 Document Title: Meridian 400 Field Service Manual
 Note: Revised 14 March 2026. Supersedes revision C.
 
-Title,Page
-Safety notices,3
-"Unpacking and siting",11
+No.,Title,Page
+1,"Safety notices",3
+2,"Unpacking and siting",11
 ```
 
-The two header lines are only emitted when a note is set; a bare `Title,Page`
-file loads fine. Titles containing commas or quotes are quoted, with embedded
-quotes doubled.
+The two header lines are only emitted when a note is set; a bare `No.,Title,Page`
+file loads fine, as does an older `Title,Page` file with no serial column. The
+`No.` column is ignored on import and recomputed from page order. Titles
+containing commas or quotes are quoted, with embedded quotes doubled.
 
 ## Project layout
 

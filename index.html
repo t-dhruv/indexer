@@ -3,285 +3,439 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Documentation Index Generator</title>
+    <title>Index — documentation index generator</title>
+    <meta
+      name="description"
+      content="Build, reorder and print a documentation index. Entries in, paginated index out — no account, no upload, everything stays in your browser."
+    />
+    <meta property="og:title" content="Index — documentation index generator" />
+    <meta
+      property="og:description"
+      content="Build, reorder and print a documentation index entirely in your browser."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#faf7f2" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231c1a17'/%3E%3Cg stroke='%23e8d9cf' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M8 10h9'/%3E%3Cpath d='M8 16h13'/%3E%3Cpath d='M8 22h6'/%3E%3C/g%3E%3Ccircle cx='24' cy='10' r='2.2' fill='%23c25a2b'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      * {
+      *,
+      *::before,
+      *::after {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
       :root {
-        --primary: #667eea;
-        --primary-dark: #5568d3;
-        --secondary: #764ba2;
-        --success: #48bb78;
-        --danger: #dc3545;
-        --warning: #ffa500;
-        --bg-light: #f7fafc;
-        --bg-lighter: #edf2f7;
-        --border: #e2e8f0;
-        --text-dark: #2d3748;
-        --text-light: #718096;
-        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-        --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+        /* surfaces — one warm neutral family throughout */
+        --paper: #f7f3ec;
+        --surface: #fffdfa;
+        --surface-2: #f1ece3;
+        --surface-3: #e8e2d7;
+        --line: #e2dbcf;
+        --line-strong: #cdc4b4;
+
+        /* ink */
+        --ink: #1c1a17;
+        --ink-2: #56504a;
+        --ink-3: #6b6358;
+
+        /* single accent, desaturated rust */
+        --accent: #b0532a;
+        --accent-hover: #96431f;
+        --accent-soft: #f2e3d9;
+        --positive: #3f6b4a;
+        --negative: #9d3327;
+        --caution: #8a6420;
+
+        /* shadows tinted with the paper hue, one light source (top) */
+        --shadow-xs: 0 1px 2px rgba(60, 45, 30, 0.06);
+        --shadow-sm: 0 2px 6px rgba(60, 45, 30, 0.07);
+        --shadow-md: 0 6px 18px -6px rgba(60, 45, 30, 0.16);
+        --shadow-lg: 0 26px 60px -24px rgba(60, 45, 30, 0.38);
+
+        --radius-sm: 6px;
+        --radius-md: 10px;
+        --radius-lg: 16px;
+
+        --z-dropdown: 100;
+        --z-toast: 200;
+        --z-modal: 300;
+
+        --sans:
+          "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+        --serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+
+        --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-        color: var(--text-dark);
+        font-family: var(--sans);
+        background: var(--paper);
+        min-height: 100dvh;
+        padding: 22px;
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        font-feature-settings: "ss01";
+      }
+
+      /* subtle grain so large flat areas do not read as sterile */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.4;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E");
+      }
+
+      /* ambient warmth behind the whole app, off-centre so it is not a flat wash */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          radial-gradient(
+            60rem 40rem at 12% -10%,
+            rgba(176, 83, 42, 0.07),
+            transparent 60%
+          ),
+          radial-gradient(
+            50rem 40rem at 92% 108%,
+            rgba(63, 107, 74, 0.06),
+            transparent 60%
+          );
+      }
+
+      ::selection {
+        background: var(--accent-soft);
+        color: var(--ink);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: 16px;
+        top: -60px;
+        z-index: var(--z-modal);
+        background: var(--ink);
+        color: var(--paper);
+        padding: 10px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: top 0.2s var(--ease);
+      }
+
+      .skip-link:focus {
+        top: 16px;
       }
 
       .app-container {
-        max-width: 1600px;
+        position: relative;
+        z-index: 2;
+        max-width: 1440px;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: 420px 1fr;
-        gap: 20px;
-        min-height: calc(100vh - 40px);
+        grid-template-columns: 384px minmax(0, 1fr);
+        gap: 22px;
+        min-height: calc(100dvh - 44px);
       }
 
       .sidebar {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 14px;
+        min-width: 0;
       }
 
       .card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
-        padding: 24px;
-        transition: all 0.3s ease;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: 22px 22px 24px;
       }
 
-      .card:hover {
-        box-shadow: var(--shadow-lg);
-      }
-
+      /* masthead reads as a wordmark, not another boxed card */
       .header {
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 2px solid var(--border);
+        background: none;
+        box-shadow: none;
+        padding: 6px 4px 2px;
       }
 
       .header h1 {
-        font-size: 28px;
-        font-weight: 700;
-        margin-bottom: 4px;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-family: var(--serif);
+        font-size: 46px;
+        font-weight: 400;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+
+      .header h1 .dot {
+        color: var(--accent);
       }
 
       .header p {
-        font-size: 13px;
-        color: var(--text-light);
+        margin-top: 8px;
+        font-size: 13.5px;
+        line-height: 1.5;
+        color: var(--ink-2);
+        max-width: 34ch;
+        text-wrap: pretty;
       }
 
       .form-group {
-        margin-bottom: 18px;
+        margin-bottom: 16px;
+      }
+
+      .form-group:last-of-type {
+        margin-bottom: 20px;
       }
 
       label {
         display: block;
-        margin-bottom: 8px;
-        font-weight: 600;
+        margin-bottom: 7px;
+        font-weight: 500;
         font-size: 13px;
-        color: var(--text-dark);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: var(--ink-2);
+      }
+
+      .label-hint {
+        color: var(--ink-3);
+        font-weight: 400;
       }
 
       input[type="text"],
       input[type="number"],
       textarea {
         width: 100%;
-        padding: 12px 14px;
-        border: 2px solid var(--border);
-        border-radius: 8px;
-        font-size: 14px;
-        transition: all 0.2s;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        font-size: 14.5px;
+        transition:
+          border-color 0.2s var(--ease),
+          box-shadow 0.2s var(--ease),
+          background 0.2s var(--ease);
         font-family: inherit;
-        background: var(--bg-light);
-        color: var(--text-dark);
+        background: var(--surface-2);
+        color: var(--ink);
+      }
+
+      input::placeholder,
+      textarea::placeholder {
+        color: var(--ink-3);
+      }
+
+      input[type="number"] {
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
       }
 
       input[type="text"]:focus,
       input[type="number"]:focus,
       textarea:focus {
         outline: none;
-        border-color: var(--primary);
-        background: white;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        border-color: var(--accent);
+        background: var(--surface);
+        box-shadow: 0 0 0 3px rgba(176, 83, 42, 0.13);
+      }
+
+      input:disabled,
+      textarea:disabled {
+        background: var(--surface-3);
+        color: var(--ink-2);
+        cursor: not-allowed;
       }
 
       textarea {
         resize: vertical;
-        min-height: 80px;
+        min-height: 74px;
+        line-height: 1.55;
       }
 
       .button-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        gap: 10px;
       }
 
       button {
-        background: linear-gradient(
-          135deg,
-          var(--primary),
-          var(--primary-dark)
-        );
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
+        background: var(--accent);
+        color: #fffaf6;
+        border: 1px solid transparent;
+        padding: 11px 18px;
+        border-radius: var(--radius-md);
+        font-family: inherit;
+        font-weight: 500;
         cursor: pointer;
         font-size: 14px;
-        transition: all 0.3s;
+        letter-spacing: 0.005em;
+        transition:
+          background 0.2s var(--ease),
+          transform 0.12s var(--ease),
+          box-shadow 0.2s var(--ease),
+          border-color 0.2s var(--ease);
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 8px;
         width: 100%;
+        box-shadow: var(--shadow-xs);
       }
 
       button:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow);
+        background: var(--accent-hover);
+        box-shadow: var(--shadow-sm);
       }
 
       button:active {
-        transform: translateY(0);
+        transform: translateY(1px) scale(0.994);
+        box-shadow: none;
       }
 
+      /* quiet secondary: no border, just a surface shift */
       button.secondary {
-        background: var(--bg-lighter);
-        color: var(--text-dark);
-        border: 2px solid var(--border);
+        background: var(--surface-2);
+        color: var(--ink);
+        box-shadow: none;
       }
 
       button.secondary:hover {
-        background: var(--border);
-        border-color: var(--text-light);
+        background: var(--surface-3);
       }
 
       button.danger {
-        background: var(--danger);
+        background: none;
+        color: var(--negative);
+        box-shadow: none;
+        font-size: 13px;
+        padding: 9px 12px;
       }
 
       button.danger:hover {
-        background: #c82333;
+        background: rgba(157, 51, 39, 0.08);
       }
 
       .stats {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
       }
 
       .stat-box {
-        background: linear-gradient(135deg, var(--bg-light), var(--bg-lighter));
-        padding: 16px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
+        padding: 2px 0;
+      }
+
+      .stat-box + .stat-box {
+        padding-left: 22px;
+        border-left: 1px solid var(--line);
       }
 
       .stat-label {
         font-size: 12px;
-        color: var(--text-light);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
+        color: var(--ink-3);
+        font-weight: 500;
+        margin-bottom: 4px;
       }
 
       .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        font-family: var(--mono);
+        font-size: 32px;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        color: var(--ink);
+        line-height: 1.05;
       }
 
       .entries-section {
-        max-height: 500px;
+        flex: 1;
         overflow-y: auto;
+        min-height: 120px;
+        max-height: 46vh;
+        margin: 0 -6px;
+        padding: 2px 6px 4px;
       }
 
-      .entries-section h3 {
-        font-size: 14px;
-        font-weight: 700;
-        margin-bottom: 12px;
-        color: var(--text-dark);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .entry-wrapper {
-        margin-bottom: 10px;
+      .entry-wrapper + .entry-wrapper {
+        margin-top: 4px;
       }
 
       .insert-divider {
         display: flex;
         align-items: center;
-        justify-content: center;
-        margin-bottom: 6px;
         gap: 8px;
+        min-height: 30px;
         opacity: 0;
-        transition: all 0.2s;
-        height: 24px;
+        transition: opacity 0.18s var(--ease);
       }
 
-      .entry-wrapper:hover .insert-divider {
+      .entry-wrapper:hover .insert-divider,
+      .entry-wrapper:focus-within .insert-divider {
         opacity: 1;
+      }
+
+      .insert-divider::after {
+        content: "";
+        flex: 1;
+        border-top: 1px dashed var(--line-strong);
       }
 
       .insert-divider button {
         font-size: 12px;
-        padding: 4px 8px;
+        padding: 6px 10px;
         width: auto;
-        height: 24px;
-        background: var(--success);
-        color: white;
+        background: none;
+        color: var(--ink-3);
+        box-shadow: none;
+        font-weight: 500;
       }
 
       .insert-divider button:hover {
-        background: #3fa36e;
-        transform: scale(1.1);
-      }
-
-      .insert-divider span {
-        font-size: 12px;
-        color: var(--text-light);
-        opacity: 0.6;
+        background: var(--accent-soft);
+        color: var(--accent);
       }
 
       .entry-item {
-        background: var(--bg-light);
-        border: 2px solid var(--border);
-        padding: 12px;
-        border-radius: 8px;
+        background: var(--surface-2);
+        border: 1px solid transparent;
+        padding: 9px 10px 9px 13px;
+        border-radius: var(--radius-md);
         display: flex;
-        justify-content: space-between;
         align-items: center;
         gap: 10px;
-        transition: all 0.2s;
-        cursor: grab;
+        transition:
+          background 0.18s var(--ease),
+          border-color 0.18s var(--ease);
       }
 
-      .entry-item:hover {
-        background: var(--bg-lighter);
-        border-color: var(--primary);
+      .entry-item:hover,
+      .entry-item:focus-within {
+        background: var(--surface);
+        border-color: var(--line-strong);
       }
 
       .entry-content {
@@ -290,31 +444,44 @@
       }
 
       .entry-title {
-        font-weight: 600;
-        color: var(--text-dark);
+        font-weight: 500;
+        color: var(--ink);
         font-size: 14px;
+        line-height: 1.35;
         word-break: break-word;
       }
 
-      .entry-page {
-        background: linear-gradient(
-          135deg,
-          var(--primary),
-          var(--primary-dark)
-        );
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
+      /* `input[type="number"]` above is an attribute selector, so it outranks a
+         bare class and would hand this box `width: 100%`. Qualify the class. */
+      .entry-item input.entry-page {
+        width: 64px;
+        min-width: 0;
+        flex: 0 0 auto;
+        appearance: textfield;
+        -moz-appearance: textfield;
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
         font-size: 13px;
-        font-weight: 700;
-        white-space: nowrap;
-        cursor: pointer;
-        min-width: 50px;
+        font-weight: 500;
         text-align: center;
+        padding: 6px 4px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--accent);
+        transition:
+          border-color 0.18s var(--ease),
+          box-shadow 0.18s var(--ease);
       }
 
-      .entry-page:hover {
-        transform: scale(1.1);
+      .entry-item input.entry-page::-webkit-outer-spin-button,
+      .entry-item input.entry-page::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .entry-item input.entry-page:hover {
+        border-color: var(--line-strong);
       }
 
       .entry-actions {
@@ -323,51 +490,62 @@
       }
 
       .delete-btn {
-        background: var(--danger);
-        padding: 6px 10px;
+        background: none;
+        color: var(--ink-3);
+        padding: 6px 8px;
         font-size: 12px;
         width: auto;
-        border-radius: 6px;
-        margin: 0;
+        box-shadow: none;
       }
 
       .delete-btn:hover {
-        background: #c82333;
+        background: rgba(157, 51, 39, 0.08);
+        color: var(--negative);
       }
 
       .main-panel {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 14px;
+        min-width: 0;
       }
 
       .toolbar {
-        background: white;
-        padding: 16px 20px;
-        border-radius: 12px;
-        box-shadow: var(--shadow);
         display: flex;
-        gap: 12px;
+        gap: 14px;
+        align-items: baseline;
+        padding: 4px 6px 0;
         flex-wrap: wrap;
-        align-items: center;
+      }
+
+      .toolbar h2 {
+        font-family: var(--serif);
+        font-size: 24px;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+      }
+
+      .toolbar .meta {
+        font-size: 13px;
+        color: var(--ink-3);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .toolbar .spacer {
+        flex: 1;
       }
 
       .toolbar button {
         width: auto;
-        padding: 10px 18px;
+        padding: 8px 16px;
         font-size: 13px;
-      }
-
-      .divider {
-        width: 1px;
-        height: 24px;
-        background: var(--border);
+        align-self: center;
       }
 
       .preview-container {
-        background: var(--bg-light);
-        border-radius: 12px;
-        box-shadow: var(--shadow);
+        background: var(--surface-2);
+        border-radius: var(--radius-lg);
+        box-shadow: inset 0 1px 3px rgba(60, 45, 30, 0.07);
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -377,29 +555,36 @@
       .preview-area {
         flex: 1;
         overflow-y: auto;
-        padding: 40px 20px;
-        background: var(--bg-light);
+        padding: 44px 20px 52px;
+        background:
+          radial-gradient(
+            40rem 24rem at 50% 0%,
+            rgba(176, 83, 42, 0.05),
+            transparent 70%
+          ),
+          var(--surface-2);
       }
 
       .page {
         width: 8.5in;
+        max-width: 100%;
         height: 11in;
-        background: white;
-        margin: 0 auto 30px;
-        padding: 0.5in;
+        background: #fffefb;
+        margin: 0 auto 32px;
+        padding: 0.72in 0.68in 0.5in;
         box-shadow: var(--shadow-lg);
         display: flex;
         flex-direction: column;
         font-size: 11pt;
         line-height: 1.6;
-        color: var(--text-dark);
-        animation: slideIn 0.3s ease;
+        color: var(--ink);
+        animation: slideIn 0.32s var(--ease) both;
       }
 
       @keyframes slideIn {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(12px);
         }
         to {
           opacity: 1;
@@ -408,32 +593,41 @@
       }
 
       .doc-title {
+        font-family: var(--serif);
         text-align: center;
-        font-size: 18pt;
-        font-weight: 700;
-        margin-bottom: 10pt;
-        border-bottom: 3pt solid var(--primary);
-        padding-bottom: 10pt;
-        color: var(--primary);
+        font-size: 26pt;
+        font-weight: 400;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+        margin-bottom: 4pt;
+        color: var(--ink);
+        text-wrap: balance;
       }
 
       .doc-subtitle {
         text-align: center;
-        font-size: 10pt;
-        color: var(--text-light);
-        margin-bottom: 15pt;
-        font-weight: 500;
+        font-size: 9pt;
+        color: var(--ink-3);
+        margin-bottom: 16pt;
+        padding-bottom: 12pt;
+        border-bottom: 1pt solid var(--line);
+        font-style: italic;
+        font-family: var(--serif);
       }
 
+      /* Sits at the foot of the first page, just above the footer. Styled as a
+         pull quote rather than a filled box: it is an aside to the index, and a
+         tinted panel at the bottom of a printed page reads as a banner. */
       .doc-note {
-        text-align: center;
-        font-size: 9pt;
-        color: var(--text-light);
+        margin: 16pt 0 0;
+        padding: 0 0 0 12pt;
+        border-left: 2pt solid var(--accent);
+        font-family: var(--serif);
         font-style: italic;
-        margin-bottom: 15pt;
-        padding: 10pt;
-        background: var(--bg-light);
-        border-left: 2pt solid var(--primary);
+        font-size: 10pt;
+        line-height: 1.55;
+        color: var(--ink-2);
+        text-wrap: pretty;
       }
 
       .page-content {
@@ -449,96 +643,161 @@
       .index-entry {
         display: flex;
         align-items: baseline;
-        margin-bottom: 8pt;
-        gap: 8pt;
+        margin-bottom: 6pt;
+        gap: 6pt;
       }
 
       .index-entry-text {
         flex-shrink: 0;
-        color: var(--text-dark);
+        max-width: 78%;
+        color: var(--ink);
       }
 
       .index-entry-dots {
         flex: 1;
-        border-bottom: 1pt dotted var(--text-dark);
-        margin: 0 4pt;
+        border-bottom: 1pt dotted var(--line-strong);
+        transform: translateY(-2pt);
       }
 
       .index-entry-page {
         flex-shrink: 0;
-        font-weight: bold;
-        color: var(--primary);
+        font-family: var(--mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 9.5pt;
+        font-weight: 600;
+        color: var(--accent);
       }
 
       .page-footer {
-        margin-top: 10pt;
-        padding-top: 10pt;
-        border-top: 1pt solid var(--border);
-        font-size: 9pt;
-        color: var(--text-light);
-        text-align: center;
+        margin-top: 14pt;
+        padding-top: 9pt;
+        border-top: 1pt solid var(--line);
+        font-size: 8.5pt;
+        color: var(--ink-3);
+        display: flex;
+        justify-content: space-between;
+        font-variant-numeric: tabular-nums;
       }
 
+      /* composed getting-started view rather than a blank panel */
       .empty-state {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
-        height: 100%;
-        color: var(--text-light);
-        text-align: center;
-        gap: 16px;
-        padding: 40px;
+        min-height: 100%;
+        max-width: 46ch;
+        margin: 0 auto;
+        color: var(--ink-2);
+        gap: 14px;
+        padding: 40px 8px;
       }
 
       .empty-state-icon {
-        font-size: 48px;
-        opacity: 0.3;
-        font-weight: bold;
+        color: var(--line-strong);
+      }
+
+      .empty-state h3 {
+        font-family: var(--serif);
+        font-size: 30px;
+        font-weight: 400;
+        color: var(--ink);
+        letter-spacing: -0.015em;
+        line-height: 1.15;
+      }
+
+      .empty-state-text {
+        font-size: 14.5px;
+        line-height: 1.65;
+        text-wrap: pretty;
+      }
+
+      .empty-steps {
+        list-style: none;
+        counter-reset: step;
+        display: grid;
+        gap: 9px;
+        margin-top: 2px;
+        font-size: 14px;
+      }
+
+      .empty-steps li {
+        counter-increment: step;
+        display: flex;
+        gap: 11px;
+        align-items: baseline;
+        color: var(--ink-2);
+      }
+
+      .empty-steps li::before {
+        content: counter(step);
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border-radius: 4px;
+        min-width: 20px;
+        text-align: center;
+        padding: 2px 0;
+        flex-shrink: 0;
+      }
+
+      /* toasts flow in a column so a burst of them never overlaps */
+      .toast-stack {
+        position: fixed;
+        bottom: 22px;
+        right: 22px;
+        z-index: var(--z-toast);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        pointer-events: none;
       }
 
       .toast {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: white;
-        padding: 16px 24px;
-        border-radius: 8px;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 13px 18px;
+        border-radius: var(--radius-md);
         box-shadow: var(--shadow-lg);
         display: flex;
         align-items: center;
-        gap: 12px;
-        animation: slideUp 0.3s ease;
-        z-index: 1000;
-        max-width: 400px;
+        gap: 11px;
+        animation: slideUp 0.28s var(--ease) both;
+        max-width: 380px;
+        font-size: 13.5px;
+        line-height: 1.4;
       }
 
       @keyframes slideUp {
         from {
           opacity: 0;
-          transform: translateY(20px);
+          transform: translateY(14px) scale(0.98);
         }
         to {
           opacity: 1;
-          transform: translateY(0);
+          transform: translateY(0) scale(1);
         }
       }
 
-      .toast.success {
-        border-left: 4px solid var(--success);
+      .toast .mark {
+        font-weight: 600;
+        color: #9fd0ae;
       }
 
-      .toast.error {
-        border-left: 4px solid var(--danger);
+      .toast.error .mark {
+        color: #f0a99f;
       }
 
       .search-box {
         position: relative;
-        margin-bottom: 16px;
+        margin-bottom: 12px;
       }
 
       .search-box input {
-        padding-left: 36px;
+        padding-left: 34px;
+        font-size: 13.5px;
       }
 
       .search-icon {
@@ -546,88 +805,98 @@
         left: 12px;
         top: 50%;
         transform: translateY(-50%);
-        color: var(--text-light);
+        color: var(--ink-3);
         pointer-events: none;
-        font-size: 14px;
+        display: flex;
       }
 
       .shortcuts-hint {
-        font-size: 11px;
-        color: var(--text-light);
-        text-align: center;
+        font-size: 12px;
+        color: var(--ink-3);
         margin-top: 16px;
-        padding-top: 12px;
-        border-top: 1px solid var(--border);
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        line-height: 1.7;
       }
 
       .keyboard-shortcut {
         display: inline-block;
-        background: var(--bg-lighter);
-        padding: 2px 6px;
+        background: var(--surface-2);
+        border: 1px solid var(--line);
+        padding: 1px 5px;
         border-radius: 4px;
-        font-weight: 600;
-        margin: 0 2px;
-        font-family: monospace;
+        font-weight: 500;
+        font-size: 11px;
+        font-family: var(--mono);
+        color: var(--ink-2);
       }
 
       .note-indicator {
         font-size: 12px;
-        color: var(--primary);
-        font-weight: 600;
-        margin-top: 8px;
-        padding-top: 8px;
-        border-top: 1px solid var(--border);
+        color: var(--ink-3);
+        margin-top: 7px;
       }
 
       .dropdown-menu {
         position: relative;
-        display: inline-block;
         width: 100%;
       }
 
       .dropdown-content {
         display: none;
         position: absolute;
-        background-color: white;
-        min-width: 200px;
-        box-shadow: var(--shadow);
-        padding: 12px 0;
-        z-index: 1;
-        border-radius: 8px;
+        background: var(--surface);
+        min-width: 210px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--line);
+        padding: 6px;
+        z-index: var(--z-dropdown);
+        border-radius: var(--radius-md);
         bottom: 100%;
+        left: 0;
         margin-bottom: 8px;
       }
 
-      .dropdown-content a {
-        color: var(--text-dark);
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        cursor: pointer;
-        font-size: 13px;
-        transition: background 0.2s;
+      .dropdown-content button {
+        color: var(--ink-2);
+        padding: 9px 11px;
+        justify-content: flex-start;
+        background: none;
+        box-shadow: none;
+        font-size: 13.5px;
+        font-weight: 400;
+        border-radius: var(--radius-sm);
       }
 
-      .dropdown-content a:hover {
-        background-color: var(--bg-light);
+      .dropdown-content button:hover {
+        background: var(--surface-2);
+        color: var(--ink);
+      }
+
+      .dropdown-content .group-label {
+        font-size: 11px;
+        color: var(--ink-3);
+        padding: 8px 11px 4px;
+        border-top: 1px solid var(--line);
+        margin-top: 4px;
       }
 
       .dropdown-menu.active .dropdown-content {
         display: block;
+        animation: slideUp 0.16s var(--ease) both;
       }
 
       .modal-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 2000;
+        inset: 0;
+        background: rgba(28, 26, 23, 0.42);
+        backdrop-filter: blur(3px);
+        z-index: var(--z-modal);
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.2s ease;
+        padding: 20px;
+        animation: fadeIn 0.2s var(--ease);
       }
 
       .modal-overlay.active {
@@ -644,121 +913,127 @@
       }
 
       .modal {
-        background: white;
-        border-radius: 12px;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
-        padding: 32px;
-        max-width: 500px;
-        width: 90%;
-        animation: slideUp 0.3s ease;
+        padding: 30px 30px 26px;
+        max-width: 480px;
+        width: 100%;
+        animation: slideUp 0.26s var(--ease) both;
       }
 
       .modal h2 {
-        font-size: 20px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: var(--text-dark);
+        font-family: var(--serif);
+        font-size: 27px;
+        font-weight: 400;
+        letter-spacing: -0.015em;
+        margin-bottom: 5px;
       }
 
       .modal-subtitle {
-        font-size: 13px;
-        color: var(--text-light);
-        margin-bottom: 24px;
-        font-weight: 500;
+        font-size: 13.5px;
+        color: var(--ink-2);
+        margin-bottom: 20px;
       }
 
       .modal-info {
-        background: var(--bg-light);
-        border-left: 4px solid var(--primary);
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 20px;
+        background: var(--surface-2);
+        padding: 11px 13px;
+        border-radius: var(--radius-sm);
+        margin-bottom: 18px;
         font-size: 13px;
-        color: var(--text-dark);
+        line-height: 1.5;
+        color: var(--ink-2);
       }
 
       .modal-info strong {
         display: block;
-        color: var(--primary);
-        margin-bottom: 4px;
+        color: var(--ink);
+        font-weight: 500;
+        margin-bottom: 3px;
+      }
+
+      .modal-info.caution {
+        background: #f6efdf;
+      }
+
+      .modal-info.caution strong {
+        color: var(--caution);
       }
 
       .modal-form {
-        margin-bottom: 24px;
-      }
-
-      .modal-form label {
-        margin-bottom: 8px;
-      }
-
-      .modal-form input {
-        width: 100%;
-        padding: 12px 14px;
-        border: 2px solid var(--border);
-        border-radius: 8px;
-        font-size: 14px;
-      }
-
-      .modal-form input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        margin-bottom: 20px;
       }
 
       .modal-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        align-items: center;
       }
 
       .modal-buttons button {
-        padding: 12px;
-        font-size: 14px;
-        border-radius: 8px;
+        width: auto;
+        padding: 11px 20px;
       }
 
       .modal-buttons .cancel {
-        background: var(--bg-lighter);
-        color: var(--text-dark);
-        border: 2px solid var(--border);
+        background: none;
+        color: var(--ink-2);
+        box-shadow: none;
       }
 
       .modal-buttons .cancel:hover {
-        background: var(--border);
+        background: var(--surface-2);
+        color: var(--ink);
       }
 
       .size-input-group {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 130px 1fr;
         gap: 12px;
-        margin-top: 16px;
+        margin-top: 14px;
+        align-items: end;
       }
 
       .size-info {
-        font-size: 12px;
-        color: var(--text-light);
-        margin-top: 12px;
-        padding: 8px;
-        background: var(--bg-lighter);
-        border-radius: 6px;
+        font-size: 12.5px;
+        color: var(--ink-2);
+        line-height: 1.5;
+        padding-bottom: 4px;
       }
 
-      @media (max-width: 1200px) {
+      .field-error {
+        color: var(--negative);
+        font-size: 12.5px;
+        margin-top: 7px;
+        min-height: 1em;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+      }
+
+      @media (max-width: 1180px) {
         .app-container {
           grid-template-columns: 1fr;
         }
-        .page {
-          transform: scale(0.9);
-          transform-origin: top center;
+        .entries-section {
+          max-height: 340px;
         }
       }
 
       @media (max-width: 768px) {
-        .toolbar {
-          flex-direction: column;
+        body {
+          padding: 14px;
         }
-        .toolbar button {
-          width: 100%;
+        .header h1 {
+          font-size: 38px;
         }
         .button-group {
           grid-template-columns: 1fr;
@@ -766,14 +1041,28 @@
         .page {
           width: 100%;
           height: auto;
-          transform: scale(1);
+          padding: 32px 24px 24px;
         }
         .preview-area {
-          padding: 20px;
+          padding: 20px 12px 28px;
         }
         .modal {
-          width: 95%;
           padding: 24px;
+        }
+        .size-input-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          transition-duration: 0.001ms !important;
+        }
+        html {
+          scroll-behavior: auto;
         }
       }
 
@@ -782,13 +1071,19 @@
           background: white;
           padding: 0;
         }
+        body::before,
+        body::after {
+          display: none;
+        }
         .sidebar,
-        .toolbar {
+        .toolbar,
+        .skip-link {
           display: none !important;
         }
         .app-container {
           grid-template-columns: 1fr;
           gap: 0;
+          max-width: none;
         }
         .preview-container {
           background: white;
@@ -804,226 +1099,256 @@
           box-shadow: none;
           margin: 0;
           animation: none;
+          background: white;
         }
       }
 
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 9px;
+        height: 9px;
       }
 
       ::-webkit-scrollbar-track {
-        background: var(--bg-light);
-        border-radius: 4px;
+        background: transparent;
       }
 
       ::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 4px;
+        background: var(--line-strong);
+        border-radius: 5px;
+        border: 2px solid var(--paper);
       }
 
       ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-light);
+        background: var(--ink-3);
       }
     </style>
   </head>
   <body>
+    <a class="skip-link" href="#preview">Skip to the index preview</a>
+
     <div class="app-container">
-      <div class="sidebar">
-        <div class="card header">
-          <h1>Index</h1>
-          <p>Documentation Index Generator</p>
-        </div>
+      <aside class="sidebar">
+        <header class="card header">
+          <h1>Index<span class="dot">.</span></h1>
+          <p>
+            Entries in, a printable documentation index out. Nothing leaves your
+            browser.
+          </p>
+        </header>
 
-        <div class="card">
-          <div class="stats">
-            <div class="stat-box">
-              <div class="stat-label">Total Entries</div>
-              <div class="stat-value" id="statEntries">0</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-label">Pages</div>
-              <div class="stat-value" id="statPages">1</div>
-            </div>
+        <section class="card stats" aria-label="Index summary">
+          <div class="stat-box">
+            <div class="stat-label">Entries</div>
+            <div class="stat-value" id="statEntries">0</div>
           </div>
-        </div>
+          <div class="stat-box">
+            <div class="stat-label">Printed pages</div>
+            <div class="stat-value" id="statPages">1</div>
+          </div>
+        </section>
 
-        <div class="card">
+        <section class="card" aria-label="Index details">
           <div class="form-group">
-            <label for="docTitle">Document Title</label>
+            <label for="docTitle">Document title</label>
             <input
               type="text"
               id="docTitle"
-              placeholder="e.g., Technical Documentation"
+              placeholder="Field Service Manual, 4th edition"
               oninput="updatePreview()"
             />
           </div>
 
           <div class="form-group">
-            <label for="docNote">Document Note (Optional)</label>
+            <label for="docNote"
+              >Note <span class="label-hint">— optional</span></label
+            >
             <textarea
               id="docNote"
-              placeholder="e.g., Last updated: January 2024"
-              oninput="updatePreview()"
+              placeholder="Revised 14 March 2026. Supersedes rev. C."
+              oninput="updatePreview(); updateNoteStatus()"
             ></textarea>
             <div class="note-indicator" id="noteStatus"></div>
           </div>
 
           <div class="form-group">
-            <label for="entryTitle">Entry Title</label>
+            <label for="entryTitle">Entry title</label>
             <input
               type="text"
               id="entryTitle"
-              placeholder="e.g., Installation Guide"
+              placeholder="Coolant loop maintenance"
             />
           </div>
 
           <div class="form-group">
-            <label for="pageNum">Page Number</label>
-            <input type="number" id="pageNum" placeholder="e.g., 5" min="1" />
+            <label for="pageNum">Page number</label>
+            <input type="number" id="pageNum" placeholder="17" min="1" />
+            <div class="field-error" id="entryError" role="alert"></div>
           </div>
 
           <div class="button-group">
-            <button onclick="addEntry()" style="grid-column: 1 / -1">
-              Add Entry
-            </button>
+            <button onclick="addEntry()">Add entry</button>
           </div>
 
-          <div class="shortcuts-hint">
-            Press <span class="keyboard-shortcut">Enter</span> to add •
-            <span class="keyboard-shortcut">Ctrl+S</span> to save
-          </div>
-        </div>
+          <p class="shortcuts-hint">
+            <span class="keyboard-shortcut">Enter</span> adds an entry ·
+            <span class="keyboard-shortcut">Ctrl</span>
+            <span class="keyboard-shortcut">S</span> saves a JSON copy · click
+            any page number to edit it
+          </p>
+        </section>
 
-        <div
+        <section
           class="card"
           id="entriesCard"
-          style="
-            display: none;
-            flex: 1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-          "
+          style="display: none; flex-direction: column"
+          aria-label="Entries"
         >
           <div class="search-box">
-            <span class="search-icon">⌕</span>
+            <span class="search-icon" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="4.6"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                />
+                <path
+                  d="M10.6 10.6L14 14"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </span>
+            <label class="visually-hidden" for="searchBox">Search entries</label>
             <input
               type="text"
               id="searchBox"
-              placeholder="Search entries..."
+              placeholder="Search entries"
               oninput="filterEntries()"
             />
           </div>
           <div class="entries-section" id="entriesList"></div>
-          <button class="danger" onclick="clearAll()" style="margin-top: auto">
-            Clear All
+          <button class="danger" onclick="clearAll()" style="margin-top: 12px">
+            Clear everything
           </button>
-        </div>
+        </section>
 
-        <div
+        <section
           class="card"
-          style="display: flex; flex-direction: column; gap: 12px"
+          style="display: flex; flex-direction: column; gap: 10px"
+          aria-label="Export and import"
         >
-          <button class="secondary" onclick="printIndex()">Print</button>
+          <button class="secondary" onclick="printIndex()">Print index</button>
           <div class="dropdown-menu" id="saveDropdown">
             <button class="secondary" onclick="toggleDropdown('saveDropdown')">
-              Save
+              Save a copy
             </button>
             <div class="dropdown-content">
-              <a onclick="downloadJSON()">Save as JSON</a>
-              <a onclick="downloadCSV()">Save as CSV</a>
+              <button onclick="downloadJSON()">Save as JSON</button>
+              <button onclick="downloadCSV()">Save as CSV</button>
             </div>
           </div>
           <div class="dropdown-menu" id="loadDropdown">
             <button class="secondary" onclick="toggleDropdown('loadDropdown')">
-              Load
+              Load a file
             </button>
             <div class="dropdown-content">
-              <a onclick="uploadJSON()">Load from JSON</a>
-              <a onclick="uploadCSV()">Load from CSV</a>
-              <a onclick="downloadSampleJSON()">Sample JSON</a>
-              <a onclick="downloadSampleCSV()">Sample CSV</a>
+              <button onclick="uploadJSON()">Load from JSON</button>
+              <button onclick="uploadCSV()">Load from CSV</button>
+              <div class="group-label">Not sure of the format?</div>
+              <button onclick="downloadSampleJSON()">Download sample JSON</button>
+              <button onclick="downloadSampleCSV()">Download sample CSV</button>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </aside>
 
-      <div class="main-panel">
+      <main class="main-panel">
         <div class="toolbar">
+          <h2>Preview</h2>
+          <span class="meta" id="previewMeta">No entries yet</span>
+          <span class="spacer"></span>
           <button class="secondary" onclick="printIndex()">Print</button>
-          <button class="secondary" onclick="downloadJSON()">Save JSON</button>
-          <button class="secondary" onclick="downloadCSV()">Save CSV</button>
-          <button class="secondary" onclick="uploadJSON()">Load JSON</button>
-          <button class="secondary" onclick="uploadCSV()">Load CSV</button>
-          <div class="divider"></div>
-          <button class="secondary" onclick="clearAll()">Clear</button>
         </div>
 
         <div class="preview-container">
-          <div class="preview-area" id="preview">
+          <div class="preview-area" id="preview" tabindex="-1">
             <div class="empty-state">
-              <div class="empty-state-icon">≡</div>
-              <div class="empty-state-text">
-                Add entries from the left panel to see your documentation index
+              <div class="empty-state-icon" aria-hidden="true">
+                <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+                  <rect
+                    x="7"
+                    y="4"
+                    width="34"
+                    height="40"
+                    rx="3"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                  />
+                  <path
+                    d="M14 14h13M14 22h20M14 30h9"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                  />
+                </svg>
               </div>
+              <h3>Nothing indexed yet</h3>
+              <p class="empty-state-text">
+                Add entries on the left and the paginated index builds itself
+                here, ready to print.
+              </p>
+              <ol class="empty-steps">
+                <li>Name the document, and add a note if it needs one.</li>
+                <li>Add each entry with the page it starts on.</li>
+                <li>Print, or save a JSON copy to pick up later.</li>
+              </ol>
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
 
     <!-- INSERT MODAL -->
-    <div class="modal-overlay" id="insertModal">
+    <div
+      class="modal-overlay"
+      id="insertModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="insertModalTitle"
+    >
       <div class="modal">
-        <h2>Insert New Entry</h2>
-        <p class="modal-subtitle">Add a new entry at this position</p>
+        <h2 id="insertModalTitle">Insert an entry</h2>
+        <p class="modal-subtitle">
+          Later pages shift down to make room for it.
+        </p>
         <div class="modal-info">
-          <strong>Insert Position:</strong>
+          <strong>Position</strong>
           <span id="insertPositionText"></span>
         </div>
         <div class="modal-form">
-          <label for="insertTitle">Entry Title</label>
-          <input type="text" id="insertTitle" placeholder="e.g., New Section" />
+          <label for="insertTitle">Entry title</label>
+          <input type="text" id="insertTitle" placeholder="Torque specifications" />
+          <div class="field-error" id="insertError" role="alert"></div>
         </div>
-        <div
-          id="duplicateWarning"
-          class="modal-info"
-          style="
-            display: none;
-            background: #fff3cd;
-            border-left-color: var(--warning);
-          "
-        >
-          <strong>Duplicate Title Detected</strong>
-          <span
-            >This title already exists. How many copies would you like to
-            insert?</span
-          >
+        <div id="duplicateWarning" class="modal-info caution" style="display: none">
+          <strong>That title is already in the index</strong>
+          <span>Choose how many consecutive pages it should cover.</span>
           <div class="size-input-group">
             <div>
-              <label
-                for="insertSize"
-                style="text-transform: none; font-size: 12px"
-                >Number of copies</label
-              >
-              <input
-                type="number"
-                id="insertSize"
-                min="1"
-                value="2"
-                style="padding: 8px"
-              />
+              <label for="insertSize">Number of copies</label>
+              <input type="number" id="insertSize" min="1" value="2" />
             </div>
             <div class="size-info">
-              <strong>Total pages:</strong><br />
               <span id="sizePreview">Pages 1-2 will be assigned</span>
             </div>
           </div>
         </div>
         <div class="modal-buttons">
           <button class="cancel" onclick="closeInsertModal()">Cancel</button>
-          <button onclick="confirmInsert()">Insert Entry</button>
+          <button onclick="confirmInsert()">Insert entry</button>
         </div>
       </div>
     </div>
@@ -1039,17 +1364,40 @@
       function showToast(message, type = "success") {
         const toast = document.createElement("div");
         toast.className = `toast ${type}`;
+        toast.setAttribute("role", "status");
         const icon = type === "success" ? "✓" : "!";
-        toast.innerHTML = `<span style="font-weight:bold">${icon}</span><span>${message}</span>`;
-        document.body.appendChild(toast);
+        toast.innerHTML = `<span class="mark">${icon}</span><span>${escapeHtml(message)}</span>`;
+        let stack = document.querySelector(".toast-stack");
+        if (!stack) {
+          stack = document.createElement("div");
+          stack.className = "toast-stack";
+          document.body.appendChild(stack);
+        }
+        stack.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
       }
 
+      function setFieldError(id, message) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = message || "";
+      }
+
       function toggleDropdown(id) {
-        document.getElementById(id).classList.toggle("active");
+        const menu = document.getElementById(id);
+        const wasActive = menu.classList.contains("active");
+        document
+          .querySelectorAll(".dropdown-menu")
+          .forEach((m) => m.classList.remove("active"));
+        if (!wasActive) menu.classList.add("active");
       }
 
       document.addEventListener("click", (e) => {
+        if (e.target.closest(".dropdown-content")) {
+          document
+            .querySelectorAll(".dropdown-menu")
+            .forEach((m) => m.classList.remove("active"));
+          return;
+        }
         if (!e.target.closest(".dropdown-menu")) {
           document
             .querySelectorAll(".dropdown-menu")
@@ -1060,13 +1408,10 @@
       function updateNoteStatus() {
         const note = document.getElementById("docNote").value.trim();
         const status = document.getElementById("noteStatus");
-        if (note) {
-          status.textContent = "Note added";
-          status.style.color = "var(--success)";
-        } else {
-          status.textContent = "No note added";
-          status.style.color = "var(--text-light)";
-        }
+        status.textContent = note
+          ? "Note will print on the first page"
+          : "No note yet";
+        status.style.color = note ? "var(--positive)" : "var(--ink-3)";
       }
 
       function addEntry() {
@@ -1074,23 +1419,31 @@
         const pageNum = document.getElementById("pageNum").value.trim();
 
         if (!entryTitle) {
-          showToast("Entry title is required", "error");
+          setFieldError("entryError", "Add a title for this entry.");
           document.getElementById("entryTitle").focus();
           return;
         }
 
         if (!pageNum) {
-          showToast("Page number is required", "error");
+          setFieldError("entryError", "Add the page this entry starts on.");
           document.getElementById("pageNum").focus();
           return;
         }
 
-        entries.push({ title: entryTitle, page: parseInt(pageNum) });
+        const parsedPage = parseInt(pageNum, 10);
+        if (isNaN(parsedPage) || parsedPage < 1) {
+          setFieldError("entryError", "Page must be a whole number, 1 or more.");
+          document.getElementById("pageNum").focus();
+          return;
+        }
+
+        setFieldError("entryError", "");
+        entries.push({ title: entryTitle, page: parsedPage });
         document.getElementById("entryTitle").value = "";
         document.getElementById("pageNum").value = "";
         document.getElementById("entryTitle").focus();
 
-        showToast("Entry added successfully");
+        showToast(`Added “${entryTitle}”`);
         renderEntries();
         updatePreview();
       }
@@ -1106,18 +1459,21 @@
         const entry = entries[entryIndex];
         const posText =
           position === "before"
-            ? `Before "${entry.title}" (currently page ${entry.page})`
-            : `After "${entry.title}" (currently page ${entry.page})`;
+            ? `Before “${entry.title}”, currently on page ${entry.page}`
+            : `After “${entry.title}”, currently on page ${entry.page}`;
         document.getElementById("insertPositionText").textContent = posText;
         document.getElementById("insertTitle").value = "";
+        document.getElementById("insertTitle").disabled = false;
         document.getElementById("insertSize").value = 2;
         document.getElementById("duplicateWarning").style.display = "none";
-        document.getElementById("insertTitle").focus();
+        setFieldError("insertError", "");
         document.getElementById("insertModal").classList.add("active");
+        document.getElementById("insertTitle").focus();
       }
 
       function closeInsertModal() {
         document.getElementById("insertModal").classList.remove("active");
+        document.getElementById("insertTitle").disabled = false;
         insertConfig = null;
       }
 
@@ -1138,21 +1494,29 @@
       function confirmInsert() {
         const title = document.getElementById("insertTitle").value.trim();
         if (!title) {
-          showToast("Entry title is required", "error");
+          setFieldError("insertError", "Add a title for this entry.");
           document.getElementById("insertTitle").focus();
           return;
         }
+        setFieldError("insertError", "");
 
         const isDuplicate = titleExists(title);
         const warningDiv = document.getElementById("duplicateWarning");
 
-        if (isDuplicate) {
+        if (isDuplicate && warningDiv.style.display === "none") {
           warningDiv.style.display = "block";
           document.getElementById("insertTitle").disabled = true;
+          updateSizePreview();
+          document.getElementById("insertSize").focus();
           return;
         }
 
-        performInsert(title, 1);
+        performInsert(
+          title,
+          isDuplicate
+            ? Math.max(1, parseInt(document.getElementById("insertSize").value) || 1)
+            : 1,
+        );
       }
 
       function performInsert(title, size) {
@@ -1175,7 +1539,9 @@
             });
           }
           showToast(
-            `${size} copy(ies) of "${title}" inserted before page ${insertPageStart}`,
+            size === 1
+              ? `Inserted “${title}” on page ${insertPageStart}`
+              : `Inserted ${size} copies of “${title}” from page ${insertPageStart}`,
           );
         } else {
           const insertPageStart = refEntry.page + 1;
@@ -1193,7 +1559,9 @@
             });
           }
           showToast(
-            `${size} copy(ies) of "${title}" inserted after page ${refEntry.page}`,
+            size === 1
+              ? `Inserted “${title}” on page ${insertPageStart}`
+              : `Inserted ${size} copies of “${title}” from page ${insertPageStart}`,
           );
         }
 
@@ -1208,17 +1576,7 @@
         ) {
           if (e.key === "Enter") {
             e.preventDefault();
-            const isDuplicate = titleExists(
-              document.getElementById("insertTitle").value.trim(),
-            );
-            if (isDuplicate) {
-              performInsert(
-                document.getElementById("insertTitle").value.trim(),
-                parseInt(document.getElementById("insertSize").value),
-              );
-            } else {
-              confirmInsert();
-            }
+            confirmInsert();
           }
           if (e.key === "Escape") closeInsertModal();
         }
@@ -1249,14 +1607,26 @@
         }
 
         entries[entryIndex].page = newPage;
-        showToast(`Page numbers updated. Entry moved to page ${newPage}`);
+        showToast(`Moved to page ${newPage}, later pages shifted`);
         renderEntries();
         updatePreview();
       }
 
+      // Inline edit: commits on blur or Enter, no browser prompt
+      function commitPage(idx, rawValue) {
+        const parsed = parseInt(rawValue, 10);
+        if (isNaN(parsed) || parsed < 1) {
+          showToast("Page must be a whole number, 1 or more", "error");
+          renderEntries();
+          return;
+        }
+        if (parsed === entries[idx].page) return;
+        updatePageNumber(idx, parsed);
+      }
+
       function deleteEntry(idx) {
-        entries.splice(idx, 1);
-        showToast("Entry deleted");
+        const [removed] = entries.splice(idx, 1);
+        showToast(`Removed “${removed.title}”`);
         renderEntries();
         updatePreview();
       }
@@ -1270,13 +1640,13 @@
       }
 
       function renderEntries() {
-        const displayEntries = document.getElementById("searchBox")?.value
-          ? filteredEntries
-          : entries;
+        const searchValue = document.getElementById("searchBox")?.value || "";
+        const displayEntries = searchValue ? filteredEntries : entries;
         const card = document.getElementById("entriesCard");
 
         if (entries.length === 0) {
           card.style.display = "none";
+          updateStats();
           return;
         }
 
@@ -1285,19 +1655,26 @@
         const sorted = [...displayEntries].sort((a, b) => a.page - b.page);
         let html = "";
 
-        sorted.forEach((e, displayIdx) => {
+        if (sorted.length === 0) {
+          html = `<p style="font-size:13.5px;color:var(--ink-3);padding:14px 2px;">No entry matches “${escapeHtml(searchValue)}”.</p>`;
+        }
+
+        sorted.forEach((e) => {
           const realIdx = entries.indexOf(e);
           html += `
                     <div class="entry-wrapper">
                         <div class="insert-divider">
-                            <button onclick="openInsertModal(${realIdx}, 'before')" title="Insert entry before this">+ Insert</button>
-                            <span>Before</span>
+                            <button onclick="openInsertModal(${realIdx}, 'before')" title="Insert an entry before this one">Insert above</button>
                         </div>
                         <div class="entry-item">
                             <div class="entry-content">
                                 <div class="entry-title">${escapeHtml(e.title)}</div>
                             </div>
-                            <div class="entry-page" title="Click to edit page number" onclick="editPage(${realIdx})">${e.page}</div>
+                            <input class="entry-page" type="number" min="1" value="${e.page}"
+                                   aria-label="Page number for ${escapeHtml(e.title)}"
+                                   title="Edit the page number"
+                                   onchange="commitPage(${realIdx}, this.value)"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" />
                             <div class="entry-actions">
                                 <button class="delete-btn" onclick="deleteEntry(${realIdx})">Remove</button>
                             </div>
@@ -1310,8 +1687,7 @@
           const lastIdx = entries.indexOf(sorted[sorted.length - 1]);
           html += `
                     <div class="insert-divider" style="opacity: 1; margin-top: 6px;">
-                        <button onclick="openInsertModal(${lastIdx}, 'after')" title="Insert entry after this">+ Insert</button>
-                        <span>After</span>
+                        <button onclick="openInsertModal(${lastIdx}, 'after')" title="Insert an entry after the last one">Insert at the end</button>
                     </div>
                 `;
         }
@@ -1322,29 +1698,21 @@
 
       function updateStats() {
         document.getElementById("statEntries").textContent = entries.length;
-        const maxEntriesPerPage = 30;
+        const maxEntriesPerPage = 25;
         const pages = Math.ceil(entries.length / maxEntriesPerPage) || 1;
         document.getElementById("statPages").textContent = pages;
-      }
 
-      function editPage(idx) {
-        const newPage = prompt(
-          `Edit page number for "${entries[idx].title}":\n\nCurrent: ${entries[idx].page}`,
-          entries[idx].page,
-        );
-        if (newPage !== null && newPage.trim()) {
-          const parsedPage = parseInt(newPage);
-          if (!isNaN(parsedPage) && parsedPage > 0) {
-            updatePageNumber(idx, parsedPage);
-          } else {
-            showToast("Please enter a valid page number", "error");
-          }
+        const meta = document.getElementById("previewMeta");
+        if (entries.length === 0) {
+          meta.textContent = "No entries yet";
+        } else {
+          meta.textContent = `${entries.length} ${entries.length === 1 ? "entry" : "entries"} · ${pages} printed ${pages === 1 ? "page" : "pages"}`;
         }
       }
 
       function updatePreview() {
         const docTitle =
-          document.getElementById("docTitle").value || "Untitled";
+          document.getElementById("docTitle").value || "Untitled document";
         renderPreview(docTitle);
       }
 
@@ -1352,10 +1720,21 @@
         if (entries.length === 0) {
           document.getElementById("preview").innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">≡</div>
-                        <div class="empty-state-text">
-                            Add entries from the left panel to see your documentation index
+                        <div class="empty-state-icon" aria-hidden="true">
+                            <svg width="52" height="52" viewBox="0 0 48 48" fill="none">
+                                <rect x="7" y="4" width="34" height="40" rx="3" stroke="currentColor" stroke-width="1.6"/>
+                                <path d="M14 14h13M14 22h20M14 30h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            </svg>
                         </div>
+                        <h3>Nothing indexed yet</h3>
+                        <p class="empty-state-text">
+                            Add entries on the left and the paginated index builds itself here, ready to print.
+                        </p>
+                        <ol class="empty-steps">
+                            <li>Name the document, and add a note if it needs one.</li>
+                            <li>Add each entry with the page it starts on.</li>
+                            <li>Print, or save a JSON copy to pick up later.</li>
+                        </ol>
                     </div>
                 `;
           return;
@@ -1363,12 +1742,16 @@
 
         const docNote = document.getElementById("docNote").value.trim();
         const sortedEntries = [...entries].sort((a, b) => a.page - b.page);
-        const maxEntriesPerPage = 30;
+        // Fits an 8.5x11in sheet at the current type scale; the note block on
+        // the first page costs roughly three entry rows.
+        const maxEntriesPerPage = 25;
+        const firstPageMax = docNote ? maxEntriesPerPage - 3 : maxEntriesPerPage;
         const pages = [];
         let currentPage = [];
 
         sortedEntries.forEach((entry) => {
-          if (currentPage.length >= maxEntriesPerPage) {
+          const cap = pages.length === 0 ? firstPageMax : maxEntriesPerPage;
+          if (currentPage.length >= cap) {
             pages.push(currentPage);
             currentPage = [];
           }
@@ -1382,10 +1765,9 @@
         let html = "";
         pages.forEach((pageEntries, pageIdx) => {
           html += `
-                    <div class="page">
-                        <div class="doc-title">${escapeHtml(docTitle)}</div>
+                    <article class="page">
+                        <h2 class="doc-title">${escapeHtml(docTitle)}</h2>
                         <div class="doc-subtitle">Index</div>
-                        ${docNote && pageIdx === 0 ? `<div class="doc-note">${escapeHtml(docNote)}</div>` : ""}
                         <div class="page-content">
                             <div class="entries-container">
                                 ${pageEntries
@@ -1401,10 +1783,12 @@
                                   .join("")}
                             </div>
                         </div>
+                        ${docNote && pageIdx === 0 ? `<blockquote class="doc-note">${escapeHtml(docNote)}</blockquote>` : ""}
                         <div class="page-footer">
-                            <span>Page ${pageIdx + 1}</span>
+                            <span>${escapeHtml(docTitle)}</span>
+                            <span>${pageIdx + 1} / ${pages.length}</span>
                         </div>
-                    </div>
+                    </article>
                 `;
         });
 
@@ -1417,7 +1801,7 @@
 
       function downloadJSON() {
         const docTitle =
-          document.getElementById("docTitle").value || "Untitled";
+          document.getElementById("docTitle").value || "Untitled document";
         const docNote = document.getElementById("docNote").value.trim();
         const data = {
           title: docTitle,
@@ -1435,12 +1819,12 @@
         a.download = `index-${new Date().toISOString().split("T")[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        showToast("Index saved as JSON");
+        showToast("Saved as JSON");
       }
 
       function downloadCSV() {
         const docTitle =
-          document.getElementById("docTitle").value || "Untitled";
+          document.getElementById("docTitle").value || "Untitled document";
         const docNote = document.getElementById("docNote").value.trim();
         let csv = "Title,Page\n";
 
@@ -1462,7 +1846,7 @@
         a.download = `index-${new Date().toISOString().split("T")[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
-        showToast("Index saved as CSV");
+        showToast("Saved as CSV");
       }
 
       function uploadJSON() {
@@ -1482,15 +1866,17 @@
             document.getElementById("docTitle").value = data.title || "";
             document.getElementById("docNote").value = data.note || "";
             entries = data.entries || [];
+            document.getElementById("searchBox").value = "";
             renderEntries();
             updatePreview();
             updateNoteStatus();
-            showToast("Index loaded from JSON");
+            showToast(`Loaded ${entries.length} entries from JSON`);
           } catch (err) {
-            showToast("Invalid JSON file", "error");
+            showToast("That file isn't valid JSON", "error");
           }
         };
         reader.readAsText(file);
+        e.target.value = "";
       });
 
       document.getElementById("csvFile").addEventListener("change", (e) => {
@@ -1535,27 +1921,29 @@
 
             if (docTitle) document.getElementById("docTitle").value = docTitle;
             if (docNote) document.getElementById("docNote").value = docNote;
+            document.getElementById("searchBox").value = "";
             renderEntries();
             updatePreview();
             updateNoteStatus();
-            showToast("Index loaded from CSV");
+            showToast(`Loaded ${entries.length} entries from CSV`);
           } catch (err) {
-            showToast("Invalid CSV file", "error");
+            showToast("That file isn't valid CSV", "error");
           }
         };
         reader.readAsText(file);
+        e.target.value = "";
       });
 
       function downloadSampleJSON() {
         const sample = {
-          title: "Sample Documentation",
-          note: "Last updated: January 2024",
+          title: "Meridian 400 Field Service Manual",
+          note: "Revised 14 March 2026. Supersedes revision C.",
           entries: [
-            { title: "Introduction", page: 1 },
-            { title: "Installation Guide", page: 5 },
-            { title: "Configuration", page: 12 },
-            { title: "API Reference", page: 25 },
-            { title: "Troubleshooting", page: 45 },
+            { title: "Safety notices", page: 3 },
+            { title: "Unpacking and siting", page: 11 },
+            { title: "Coolant loop maintenance", page: 27 },
+            { title: "Torque specifications", page: 48 },
+            { title: "Fault codes and diagnostics", page: 73 },
           ],
           exportDate: new Date().toISOString(),
         };
@@ -1573,15 +1961,15 @@
       }
 
       function downloadSampleCSV() {
-        const sample = `Document Title: Sample Documentation
-Note: Last updated: January 2024
+        const sample = `Document Title: Meridian 400 Field Service Manual
+Note: Revised 14 March 2026. Supersedes revision C.
 
 Title,Page
-Introduction,1
-"Installation Guide",5
-Configuration,12
-"API Reference",25
-Troubleshooting,45`;
+Safety notices,3
+"Unpacking and siting",11
+"Coolant loop maintenance",27
+"Torque specifications",48
+"Fault codes and diagnostics",73`;
 
         const blob = new Blob([sample], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -1594,16 +1982,21 @@ Troubleshooting,45`;
       }
 
       function clearAll() {
-        if (confirm("Clear all entries? This action cannot be undone.")) {
+        if (
+          confirm("Clear the title, note and every entry? This can't be undone.")
+        ) {
           entries = [];
+          filteredEntries = [];
           document.getElementById("docTitle").value = "";
           document.getElementById("docNote").value = "";
           document.getElementById("entryTitle").value = "";
           document.getElementById("pageNum").value = "";
+          document.getElementById("searchBox").value = "";
+          setFieldError("entryError", "");
           renderEntries();
           updatePreview();
           updateNoteStatus();
-          showToast("All entries cleared");
+          showToast("Cleared");
         }
       }
 
@@ -1615,7 +2008,7 @@ Troubleshooting,45`;
           '"': "&quot;",
           "'": "&#039;",
         };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
+        return String(text).replace(/[&<>"']/g, (m) => map[m]);
       }
 
       document
@@ -1623,6 +2016,10 @@ Troubleshooting,45`;
         .addEventListener("keypress", (e) => {
           if (e.key === "Enter") addEntry();
         });
+
+      document.getElementById("pageNum").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addEntry();
+      });
 
       document.addEventListener("keydown", (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === "s") {
